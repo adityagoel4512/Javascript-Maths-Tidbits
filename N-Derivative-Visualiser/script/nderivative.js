@@ -246,7 +246,6 @@ function main() {
         });
     });
 
-    //The First Initialisation - I use 's' rather than 'z' :p
     initGraph("#basis");
 }
 $(document).ready(main); //Load main when document is ready.

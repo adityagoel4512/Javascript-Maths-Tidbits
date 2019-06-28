@@ -74,7 +74,6 @@ function computeDerivative(token) {
 function tokeniseExps(expression) {
     var tokens = [];
     var i = 0;
-    var t = 0;
     var curr = "";
     while(i < expression.length) {
         

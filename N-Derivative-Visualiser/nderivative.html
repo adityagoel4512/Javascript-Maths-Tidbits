@@ -3,7 +3,7 @@
 
 <head>
     <!--Page Info-->
-    <title>VC: Plane Polar</title>
+    <title>nth Derivative</title>
     <!--css link-->
     <link rel="stylesheet" href="https://manglekuo.com/i-v/styles.css?v=2">
     <!--Required JS resources--> <!--NB: better to have resources before the main body but still works even if they are not-->
@@ -19,14 +19,14 @@
         <div class="row">
             <!-- Graph -->
             <div class="six columns">
-                <h1>Quadratic Functions</h1>
+                <h1>Polynomial Derivatives</h1>
                 <div id='graph' style="width:600px; height:600px;"></div>
             </div>
 
             <!--Bottons/Sliders-->
             <div class="six columns">
                 <!--Main Options/Tabs-->
-                <a class="button active" href="#basis">Quadratic Functions</a>
+                <a class="button active" href="#basis">Polynomial Derivatives</a>
                 <!--BEGIN Slider-->
                     <!--These Sliders are shared among all tabs-->
 
@@ -78,6 +78,14 @@
                     </label>
                     <!--END Slider-->
                    
+                <!--BEGIN Input function box -->
+                <div id="input">
+                    <label>Input Function: f(x)=
+                        <input id = "aInput" type="text" value = "x**2">
+                        <p id= "aInputError" style="color:#ff0000" hidden></p>
+                    </label>
+                </div>
+                <!--END Input function box  -->
                 
                 </div>
             </div>

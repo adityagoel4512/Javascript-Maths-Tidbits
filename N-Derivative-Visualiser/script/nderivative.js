@@ -34,12 +34,79 @@ function computeQuadratic(a, b, c) {
 
     return data;
 }
+
+// delim_op := '+' | '-'
+// 
+
+function computeDerivative(token) {
+    
+    var i = 0;
+
+    var n;
+    var a;
+
+    while(i < token.length) {
+
+        if (token.slice(i, i+2) == "**") {
+            n = token[i+2];
+        } else if (!isNaN(token[i])) {
+            a = token[i];
+        }
+
+        ++i;
+    }
+
+    a = parseFloat(a) * parseFloat(n);
+    n = parseFloat(n) - 1;
+
+    var derivative = a.toString(10) + "x" + n.toString(10);
+    return derivative;
+
+}
+
+function tokeniseExps(expression) {
+    var tokens = [];
+    var i = 0;
+    var t = 0;
+    var curr = "";
+    while(i < expression.length) {
+        
+        if (expression[i] == "+" || expression[i] == "-") {
+            //deal with signs later
+            tokens.push(curr);
+            curr = "";
+            ++t;
+            ++i;
+        } else if (expression[i] == " ") {
+            
+            ++i;
+        } else {
+            // could be a number, **, symbol
+            curr += expression[i];
+            ++i;
+        }
+        
+        if (i == expression.length) {
+            tokens.push(curr);
+            ++t;
+            curr = "";
+        }
+
+    }
+
+    return tokens;
+}
+
 function initGraph(type) {
     Plotly.purge("graph");
 
     var a = parseFloat(document.getElementById('aController').value);
     var b = parseFloat(document.getElementById('bController').value);
     var c = parseFloat(document.getElementById('cController').value);
+
+    var formula = document.getElementById('aInput').value;
+    console.log(formula);
+
     data = computeQuadratic(a, b, c);
 
     Plotly.newPlot('graph', data);
@@ -59,6 +126,11 @@ function updatePlot() {
     var b = parseFloat(document.getElementById('bController').value);
     var c = parseFloat(document.getElementById('cController').value);
     data = computeQuadratic(a, b, c);
+    
+    var formula = document.getElementById("aInput").value;
+    console.log(formula);
+
+    var ts = tokeniseExps(formula);
 
     Plotly.animate(
         'graph',
@@ -74,7 +146,7 @@ function updatePlot() {
 
 function main() {
     /*Jquery*/ //NB: Put Jquery stuff in the main not in HTML
-    $("input[type=range]").each(function () {
+    $("input").each(function () {
         var displayEl;
         /*Allows for live update for display values*/
         $(this).on('input', function(){

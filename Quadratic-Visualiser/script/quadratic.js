@@ -18,13 +18,12 @@ var currentPoint = initialPoint;
  */
 
 function computeQuadratic(a, b, c) {
-    var xs = numeric.linspace(-4, 4, 64);
-    var ys = numeric.linspace(-4, 4, 64);
+    var xs = numeric.linspace(-10, 10, 200);
+    var ys = numeric.linspace(-10, 10, 200);
 
     for(var i = 0; i < ys.length; ++i) {
         ys[i] = (a * ys[i] * ys[i]) + (b * ys[i]) + c;
     }
-
 
     var data = [{
         x: xs,
@@ -51,10 +50,7 @@ function initGraph(type) {
 function updatePlot() {
     var data = [];
     // NB: updates according to the active tab
-    var href = $('ul.tab-nav li a.active.button').attr('href'); // finds out which tab is active
 
-    var rho = parseFloat(document.getElementById('aController').value);
-    var phi = 1;
     var a = parseFloat(document.getElementById('aController').value);
     var b = parseFloat(document.getElementById('bController').value);
     var c = parseFloat(document.getElementById('cController').value);

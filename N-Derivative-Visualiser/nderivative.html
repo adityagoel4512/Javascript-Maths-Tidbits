@@ -20,61 +20,26 @@
             <!-- Graph -->
             <div class="six columns">
                 <h1>Polynomial Derivatives</h1>
-                <div id='graph' style="width:600px; height:600px;"></div>
+                <div id='graph' style="width:350px; height:600px;"></div>
             </div>
 
             <!--Bottons/Sliders-->
             <div class="six columns">
                 <!--Main Options/Tabs-->
-                <a class="button active" href="#basis">Polynomial Derivatives</a>
                 <!--BEGIN Slider-->
                     <!--These Sliders are shared among all tabs-->
 
                     <!--Slider Display--> <!--Linked with the slider below-->
                     <!--Linked with a slider and shows the live values of its corresponding slider-->
                     <label class="sliderTitle">a:&nbsp;<!--rho-->
-                        <span id="aControllerDisplay" data-unit="">0</span> <!--default: 0-->
+                        <span id="aControllerDisplay" data-unit="">1</span> <!--default: 0-->
                     </label>
 
                     <!--Slider-->
                     <!--NB: Be careful with classes and types-->
                     <label class="slider">
-                        <input id="aController" class="inputs" type="range" value="0" min="-4" max="4" step="0.1"/>
-                        <span class="sliderMin">-4</span><span class="sliderMax">4</span>
-                    </label>
-                    <!--END Slider-->
-
-                <!--BEGIN Slider-->
-                    <!--These Sliders are shared among all tabs-->
-
-                    <!--Slider Display--> <!--Linked with the slider below-->
-                    <!--Linked with a slider and shows the live values of its corresponding slider-->
-                    <label class="sliderTitle">b:&nbsp;<!--rho-->
-                        <span id="bControllerDisplay" data-unit="">0</span> <!--default: 0-->
-                    </label>
-
-                    <!--Slider-->
-                    <!--NB: Be careful with classes and types-->
-                    <label class="slider">
-                        <input id="bController" class="inputs" type="range" value="0" min="-4" max="4" step="0.1"/>
-                        <span class="sliderMin">-4</span><span class="sliderMax">4</span>
-                    </label>
-                    <!--END Slider-->
-
-                <!--BEGIN Slider-->
-                    <!--These Sliders are shared among all tabs-->
-
-                    <!--Slider Display--> <!--Linked with the slider below-->
-                    <!--Linked with a slider and shows the live values of its corresponding slider-->
-                    <label class="sliderTitle">c:&nbsp;<!--rho-->
-                        <span id="cControllerDisplay" data-unit="">0</span> <!--default: 0-->
-                    </label>
-
-                    <!--Slider-->
-                    <!--NB: Be careful with classes and types-->
-                    <label class="slider">
-                        <input id="cController" class="inputs" type="range" value="0" min="-4" max="4" step="0.1"/>
-                        <span class="sliderMin">-4</span><span class="sliderMax">4</span>
+                        <input id="aController" class="inputs" type="range" value="1" min="1" max="4" step="1"/>
+                        <span class="sliderMin">1</span><span class="sliderMax">4</span>
                     </label>
                     <!--END Slider-->
                    
@@ -86,8 +51,12 @@
                     </label>
                 </div>
                 <!--END Input function box  -->
-                
+
+                <div id="in">
+                    <button type="button">Update</button>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>

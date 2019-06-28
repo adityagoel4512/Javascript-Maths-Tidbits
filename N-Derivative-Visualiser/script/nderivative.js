@@ -25,7 +25,6 @@ function computeQuadratic(a, b, c) {
         ys[i] = (a * ys[i] * ys[i]) + (b * ys[i]) + c;
     }
 
-
     var data = [{
         x: xs,
         y: ys,
@@ -35,13 +34,9 @@ function computeQuadratic(a, b, c) {
     return data;
 }
 
-// delim_op := '+' | '-'
-// 
-
 function computeDerivative(token) {
     
     var i = 0;
-
     var n;
     var a;
 
@@ -49,17 +44,29 @@ function computeDerivative(token) {
 
         if (token.slice(i, i+2) == "**") {
             n = token[i+2];
-        } else if (!isNaN(token[i])) {
-            a = token[i];
+            n += token.slice(i+3, token.length);
+            ++i;
         }
-
         ++i;
     }
+
+    a = token[0];
+    var i = 1;
+    while(!isNaN(token[i])) {
+        a += token[i];
+        ++i;
+    }
+
+    if (a == "+") {
+        a = "1";
+    } else if (a == "-") {
+        a = "-1";
+    } 
 
     a = parseFloat(a) * parseFloat(n);
     n = parseFloat(n) - 1;
 
-    var derivative = a.toString(10) + "x" + n.toString(10);
+    var derivative = a.toString(10) + "(x" + "**" + n.toString(10)+ ")";
     return derivative;
 
 }
@@ -73,12 +80,14 @@ function tokeniseExps(expression) {
         
         if (expression[i] == "+" || expression[i] == "-") {
             //deal with signs later
-            tokens.push(curr);
-            curr = "";
-            ++t;
+            curr += expression[i];
             ++i;
         } else if (expression[i] == " ") {
-            
+            if (curr != "+") {
+                tokens.push(curr);
+                curr = "";
+                ++t;
+            }
             ++i;
         } else {
             // could be a number, **, symbol
@@ -97,40 +106,105 @@ function tokeniseExps(expression) {
     return tokens;
 }
 
+function firstDerivative(formula) {
+
+    if (formula == "0") {
+        return "0";
+    }
+
+    if (formula[0] != '+' || formula[0] != '-') {
+        formula = "+" + formula;
+    }
+
+    var tokens = tokeniseExps(formula);
+    var derivedTokens = [];
+
+    tokens.forEach(token => {
+        if (token != "") {
+            derivedTokens.push(computeDerivative(token));
+        }
+    });
+
+    var derivative = derivedTokens[0];
+
+    derivedTokens.slice(1, derivedTokens.length).forEach(d => {
+        derivative += " + " + d;
+    });
+
+    return derivative;
+}
+
+function nthDerivative(formula, n) {
+    var derivative;
+    for(var i = 0; i < n; ++i) {
+        derivative = firstDerivative(formula);
+        formula = derivative;
+    }
+    return formula;
+}
+
+function generateGraphData(expression, derivative, n) {
+
+    var xs = numeric.linspace(-4, 4, 64);
+    var ysExpression = numeric.linspace(-4, 4, 64);
+    var ysDerivative = numeric.linspace(-4, 4, 64);
+
+    for(var i = 0; i < ysExpression.length; ++i) {
+        var x = xs[i];
+        ysExpression[i] = eval(expression);
+    }
+
+    derivative = derivative.replace("(", " * (");
+
+    for(var i = 0; i < ysDerivative.length; ++i) {
+        var x = xs[i];
+        ysDerivative[i] = eval(derivative);
+
+        if (ysDerivative[i] == NaN) {
+            ysDerivative[i] = 0;
+        }
+    }
+
+    var data = [{
+        x: xs,
+        y: ysExpression,
+        type: 'scatter',
+        name: 'f(x)'
+    },
+    {
+        x: xs,
+        y: ysDerivative,
+        type: 'scatter',
+        name: 'f' + n.sup() + '(x)'
+    }];
+
+    return data;
+}
+
 function initGraph(type) {
     Plotly.purge("graph");
 
-    var a = parseFloat(document.getElementById('aController').value);
-    var b = parseFloat(document.getElementById('bController').value);
-    var c = parseFloat(document.getElementById('cController').value);
+    var n = parseFloat(document.getElementById('aController').value);
 
     var formula = document.getElementById('aInput').value;
-    console.log(formula);
-
-    data = computeQuadratic(a, b, c);
+    var nthderivative = nthDerivative(formula, n);
+    var data = generateGraphData(formula, nthderivative, n.toString(10));
 
     Plotly.newPlot('graph', data);
+
     return;
 }
 
 
 /** updates the plot according to the slider controls. */
 function updatePlot() {
-    var data = [];
-    // NB: updates according to the active tab
-    var href = $('ul.tab-nav li a.active.button').attr('href'); // finds out which tab is active
-
-    var rho = parseFloat(document.getElementById('aController').value);
-    var phi = 1;
-    var a = parseFloat(document.getElementById('aController').value);
-    var b = parseFloat(document.getElementById('bController').value);
-    var c = parseFloat(document.getElementById('cController').value);
-    data = computeQuadratic(a, b, c);
     
-    var formula = document.getElementById("aInput").value;
-    console.log(formula);
+    var data = [];
 
-    var ts = tokeniseExps(formula);
+    var n = parseFloat(document.getElementById('aController').value);
+    var formula = document.getElementById('aInput').value;
+    var nthderivative = nthDerivative(formula, n);
+    data = generateGraphData(formula, nthderivative, n.toString(10));
 
     Plotly.animate(
         'graph',
@@ -146,7 +220,7 @@ function updatePlot() {
 
 function main() {
     /*Jquery*/ //NB: Put Jquery stuff in the main not in HTML
-    $("input").each(function () {
+    $("input[type=range]").each(function () {
         var displayEl;
         /*Allows for live update for display values*/
         $(this).on('input', function(){

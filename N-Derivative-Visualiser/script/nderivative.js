@@ -85,7 +85,6 @@ function tokeniseExps(expression) {
             if (curr != "+") {
                 tokens.push(curr);
                 curr = "";
-                ++t;
             }
             ++i;
         } else {
@@ -96,7 +95,6 @@ function tokeniseExps(expression) {
         
         if (i == expression.length) {
             tokens.push(curr);
-            ++t;
             curr = "";
         }
 
@@ -153,12 +151,18 @@ function generateGraphData(expression, derivative, n) {
         ysExpression[i] = eval(expression);
     }
 
+    // var find = '(';
+    // var re = new RegExp(find, 'g');
+
     derivative = derivative.replace("(", " * (");
+
+    // for (var i = 0; i < variables; ++i) {
+    //     derivative = derivative.replace("(", " * (");
+    // }
 
     for(var i = 0; i < ysDerivative.length; ++i) {
         var x = xs[i];
         ysDerivative[i] = eval(derivative);
-
         if (ysDerivative[i] == NaN) {
             ysDerivative[i] = 0;
         }

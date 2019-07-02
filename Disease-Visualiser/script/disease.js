@@ -24,7 +24,14 @@ var layout = {
         method: 'restyle',
         args: ['line.color', 'blue']
       }]
-    }]
+    }],
+    width: 600, height: 600,
+    margin: {l:30, r:30, t:10, b:30},
+    hovermode: "closest",
+    showlegend: false,
+    xaxis: {range: [-15, 15], zeroline: true, title: "x"},
+    yaxis: {range: [-225, 225], zeroline: true, title: "y"},
+    aspectratio: {x:1, y:1}
   };
 
 var currentPoint = initialPoint;

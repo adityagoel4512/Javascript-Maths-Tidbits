@@ -37,6 +37,8 @@ var col = 100;
 let r, g, b;
 let slider;
 var slide;
+var n;
+var rand;
 
  //Plot
 /**
@@ -70,22 +72,42 @@ function setup() {
 }
 
 // TODO: add parameter to this function that takes into account graph
-function disease(i, j) {
-    if (i/20 > abs(slide) && j/20 > abs(slide)) {
-        r = g = b = 0;
-    } else {
-        r = g = b = 100;
+function disease(i, j, rand) {
+    this.i = i/20;
+    this.j = j/20;
+
+    if (n <= 0) {
+        r = g = b = 0;    
+        return;
     }
+
+    rand = Math.random();
+    if (rand < 0.5) {
+        r = g = 230;
+        b = 0;
+        --n;
+    } else {
+        r = g = b = 0;
+    }
+
+    if (n == (canvas_height/20 * canvas_width/20) - ((canvas_height/20 * j) + (canvas_width/20 * i))) {
+        r = g = 230;
+        b = 0;
+        --n;
+    }
+    
 }
 
 function draw() {
+
     stroke(51);
     strokeWeight(2);
-
+    n = Math.floor((computefx(slide) / 100) * canvas_width * canvas_height / 400);
+    rand = Math.random();
     for (var i = 20; i < canvas_height; i = i + 20) {
         var row = [];
         for (var j = 20; j < canvas_width; j = j + 20) {
-            disease(i, j);
+            disease(i, j, rand);
             fill(r, g, b);
             var p = new People(i, j, face_diameter, 2);
             p.display();
@@ -95,7 +117,12 @@ function draw() {
     }
 
     slide = slider.value();
+
     updatePlot();
+}
+
+function computefx(x) {
+    return x * x;
 }
 
 function computeQuadratic(final_x) {
@@ -105,7 +132,7 @@ function computeQuadratic(final_x) {
 
 
     for(var i = 0; i < ys.length; ++i) {
-        ys[i] = ys[i] * ys[i];
+        ys[i] = computefx(ys[i]);
     }
 
     var data = [{

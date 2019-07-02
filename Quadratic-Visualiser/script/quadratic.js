@@ -1,12 +1,12 @@
 //Global Initial Parameters:
 var initialPoint = [1.5, 1.5];
 var layout = {
-    width: 600, height: 1000,
-    margin: {l:30, r:30, t:30, b:30},
+    width: 600, height: 600,
+    margin: {l:30, r:30, t:10, b:30},
     hovermode: "closest",
     showlegend: false,
-    xaxis: {range: [-40, 40], zeroline: true, title: "x"},
-    yaxis: {range: [-100, 100], zeroline: true, title: "y"},
+    xaxis: {range: [-15, 15], zeroline: true, title: "x"},
+    yaxis: {range: [-225, 225], zeroline: true, title: "y"},
     aspectratio: {x:1, y:1}
 };
 var currentPoint = initialPoint;
@@ -18,8 +18,8 @@ var currentPoint = initialPoint;
  */
 
 function computeQuadratic(a, b, c) {
-    var xs = numeric.linspace(-10, 10, 200);
-    var ys = numeric.linspace(-10, 10, 200);
+    var xs = numeric.linspace(-15, 15, 200);
+    var ys = numeric.linspace(-15, 15, 200);
 
     for(var i = 0; i < ys.length; ++i) {
         ys[i] = (a * ys[i] * ys[i]) + (b * ys[i]) + c;
@@ -41,7 +41,7 @@ function initGraph(type) {
     var c = parseFloat(document.getElementById('cController').value);
     data = computeQuadratic(a, b, c);
 
-    Plotly.newPlot('graph', data);
+    Plotly.newPlot('graph', data, layout);
     return;
 }
 

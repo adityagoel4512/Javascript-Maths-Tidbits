@@ -3,7 +3,7 @@
 
 <head>
     <!--Page Info-->
-    <title>nth Derivative</title>
+    <title>Principle Component Analysis</title>
     <!--css link-->
     <link rel="stylesheet" href="style\skeleton.css">
     <link rel="stylesheet" href="style\style.css">
@@ -17,21 +17,48 @@
 <body>
 
     <div class="container">
+            <div id="Dataset" class="tabcontent">
+                    <!--html content for here-->
+                </div>
+
+                <div id="Covariance" class="tabcontent">
+                    <!--html content for here-->
+                </div>
+
+                <div id="Eigenvectors" class="tabcontent">
+                    <!--html content for here-->
+                </div>
+
+                <div id="Result" class="tabcontent">
+                    <!--html content for here-->
+                </div>
+            <button class="tablink" onclick="switchTab('Dataset', this, 'red')" id="defaultOpen">Analyse Dataset</button>
+            <button class="tablink" onclick="switchTab('Covariance', this, 'green')">Compute Covariance Matrix</button>
+            <button class="tablink" onclick="switchTab('Eigenvectors', this, 'blue')">Compute Eigenvalues and Eigenvectors</button>
+            <button class="tablink" onclick="switchTab('Result', this, 'orange')">Dimensionality Reduction and Result</button>
+        
         <div class="row">
+            
             <!-- Graph -->
+     
             <div class="six columns">
-                <h1>Polynomial Derivatives</h1>
-                <div id='graph' style="width:350px; height:600px;"></div>
+                <div id='padding' style="widows: 400%;; height:20px;"></div>
+                <h1>Principle Component Analysis</h1>
+                <div id='graph' style="widows: 400%;; height:600px;"></div>
             </div>
 
             <!--Bottons/Sliders-->
             <div class="six columns">
+                    
                 <!--Main Options/Tabs-->
                 <!--BEGIN Slider-->
                     <!--These Sliders are shared among all tabs-->
 
                     <!--Slider Display--> <!--Linked with the slider below-->
                     <!--Linked with a slider and shows the live values of its corresponding slider-->
+                    <div id='information' style="widows: 400%; height:20px;"></div>
+
+                    
                     <label class="sliderTitle">Degree:&nbsp;<!--rho-->
                         <span id="aControllerDisplay" data-unit="">1</span> <!--default: 0-->
                     </label>
@@ -59,7 +86,7 @@
 
     <!--THE BRAINS-->
     <script src=script/objects.js></script>
-    <script src=script/tree.js></script>
+    <script src=script/pca.js></script>
 </body>
 
 </html>

@@ -1,12 +1,12 @@
 //Global Initial Parameters:
 var initialPoint = [1.5, 1.5];
 var layout = {
-    width: 600, height: 1000,
+    width: 600, height: 400,
     margin: {l:30, r:30, t:30, b:30},
     hovermode: "closest",
     showlegend: false,
-    xaxis: {range: [-40, 40], zeroline: true, title: "x"},
-    yaxis: {range: [-100, 100], zeroline: true, title: "y"},
+    xaxis: {range: [-50, 50], zeroline: true, title: "x"},
+    yaxis: {range: [-250, 250], zeroline: true, title: "y"},
     aspectratio: {x:1, y:1}
 };
 var currentPoint = initialPoint;
@@ -142,9 +142,9 @@ function nthDerivative(formula, n) {
 
 function generateGraphData(expression, derivative, n) {
 
-    var xs = numeric.linspace(-4, 4, 64);
-    var ysExpression = numeric.linspace(-4, 4, 64);
-    var ysDerivative = numeric.linspace(-4, 4, 64);
+    var xs = numeric.linspace(-50, 50, 2500);
+    var ysExpression = numeric.linspace(-50, 50, 2500);
+    var ysDerivative = numeric.linspace(-50, 50, 2500);
 
     for(var i = 0; i < ysExpression.length; ++i) {
         var x = xs[i];
@@ -193,11 +193,34 @@ function initGraph(type) {
     var nthderivative = nthDerivative(formula, n);
     var data = generateGraphData(formula, nthderivative, n.toString(10));
 
-    Plotly.newPlot('graph', data);
+    Plotly.newPlot('graph', data, layout);
 
     return;
 }
 
+function switchTab(tabName) {
+    // Hide all elements with class="tabcontent" by default */
+
+    var iDiv = document.createElement('div');
+    iDiv.id = 'block';
+    iDiv.className = 'block';
+    var d = document.getElementById("graph");
+    d.appendChild(iDiv);
+    
+    // Now create and append to iDiv
+    var innerDiv = document.createElement('div');
+    innerDiv.className = 'block-2';
+    // The variable iDiv is still good... Just append to it.
+    iDiv.appendChild(innerDiv);
+    document.getElementById('graph').innerHTML = tabName;
+  
+    // Show the specific tab content
+    document.getElementById(tabName).style.display = "block";
+  
+    // Add the specific color to the button used to open the tab content
+    //elmnt.style.backgroundColor = color;
+  }
+  
 
 /** updates the plot according to the slider controls. */
 function updatePlot() {
@@ -219,6 +242,7 @@ function updatePlot() {
             mode: "afterall"
         }
     );
+
 }
 
 function main() {

@@ -193,17 +193,6 @@ function covariance2D(selected) {
 }
 
 function covarianceSetup() {
-//     var script = document.createElement("script");
-//   script.type = "text/javascript";
-//   script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
-
-//   var config = 'MathJax.Hub.Config({ config: "MathJax.js" }); ' +
-//                'MathJax.Hub.Startup.onload();';
-
-//   if (window.opera) {script.innerHTML = config}
-//                else {script.text = config}
-
-//   document.getElementById('graph1').appendChild(script);
 
     document.getElementsByClassName('covariance_matrix')[0].style.display = "block";
     document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
@@ -218,9 +207,6 @@ function covarianceSetup() {
     var covariance_matrix = PCA.computeVarianceCovariance(deviation_matrix, true);
     
     setupButtons(covariance2D);
-
-
-    // TODO: some kind of latexy explanation of covariance formula etc.
 
 }
 
@@ -238,7 +224,6 @@ function switchTab(tabName) {
             datasetVisualisation();
             break;
         case 'Covariance':
-            //document.getElementById('graph').innerHTML = tabName;
             extra_text_p1 = false;
             document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
             covarianceSetup();
@@ -248,7 +233,6 @@ function switchTab(tabName) {
             document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
             var eigenvectors = PCA.getEigenVectors(high_dim_set);
 
-            //document.getElementById('graph').innerHTML = tabName;
             break;
         case 'Result':
             extra_text_p1 = false;
@@ -294,13 +278,8 @@ function switchTab(tabName) {
             break;
     }
 
-    //document.getElementById('graph').innerHTML = tabName;
-
-    //elmnt.style.backgroundColor = color;
   }
   
-
-
 
 function main() {
     /*Jquery*/ //NB: Put Jquery stuff in the main not in HTML

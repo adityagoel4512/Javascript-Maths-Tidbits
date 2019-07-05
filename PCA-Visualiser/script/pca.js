@@ -1,249 +1,306 @@
 //Global Initial Parameters:
-var initialPoint = [1.5, 1.5];
-var layout = {
-    width: 600, height: 400,
-    margin: {l:30, r:30, t:30, b:30},
-    hovermode: "closest",
-    showlegend: false,
-    xaxis: {range: [-50, 50], zeroline: true, title: "x"},
-    yaxis: {range: [-250, 250], zeroline: true, title: "y"},
-    aspectratio: {x:1, y:1}
-};
-var currentPoint = initialPoint;
 
-//Plot
-/**
- * Resets and plots initial area element or basis vectors of plane polar.
- * @param {string} type - basis vectors or area element
- */
+var high_dim_set = [[2, 8, 0, 6], 
+                    [3, 6, 1, 4], 
+                    [4, 4, 2, 2],
+                    [2.3, 5.4, 1.2, 3.4],
+                    [3.4, 7.6, 1.4, 6.8],
+                    [2.3, 4.2, 2.5, 2.2],
+                    [4.9, 4.9, 0.2, 1.5]];
 
-function computeQuadratic(a, b, c) {
-    var xs = numeric.linspace(-4, 4, 64);
-    var ys = numeric.linspace(-4, 4, 64);
+var small_data_set = [[2, 8, 0, 6], 
+                      [3, 6, 1, 4],
+                      [4, 4, 2, 2]]
 
-    for(var i = 0; i < ys.length; ++i) {
-        ys[i] = (a * ys[i] * ys[i]) + (b * ys[i]) + c;
-    }
+var active_button_queue_dataset = [0, 1];
+var active_button_queue_covariance = [0, 1];
+var param_titles = ['sepal width', 'sepal length', 'petal width', 'petal length'];
+var extra_text_p1 = false;
+
+///TODO: text content appropriately
+
+function pcaIntro(type) {
+    Plotly.purge("graph1");
+    document.getElementById('information').innerText = "\n\nAn introduction to Principle Component Analysis.";
+}
+
+function datasetVisualisation() {
+    var xs = []; ys = []; zs = []; ts = [];
+            high_dim_set.forEach(vector => {
+                xs.push(vector[0]);
+                ys.push(vector[1]);
+                zs.push(vector[2]);
+                ts.push(vector[3]);
+            });
 
     var data = [{
-        x: xs,
-        y: ys,
-        type: 'scatter'
-    }];
-
-    return data;
-}
-
-function computeDerivative(token) {
-    
-    var i = 0;
-    var n;
-    var a;
-
-    while(i < token.length) {
-
-        if (token.slice(i, i+2) == "**") {
-            n = token[i+2];
-            n += token.slice(i+3, token.length);
-            ++i;
-        }
-        ++i;
-    }
-
-    a = token[0];
-    var i = 1;
-    while(!isNaN(token[i])) {
-        a += token[i];
-        ++i;
-    }
-
-    if (a == "+") {
-        a = "1";
-    } else if (a == "-") {
-        a = "-1";
-    } 
-
-    a = parseFloat(a) * parseFloat(n);
-    n = parseFloat(n) - 1;
-
-    var derivative = a.toString(10) + "(x" + "**" + n.toString(10)+ ")";
-    return derivative;
-
-}
-
-function tokeniseExps(expression) {
-    var tokens = [];
-    var i = 0;
-    var curr = "";
-    while(i < expression.length) {
+        type: 'parcoords',
+        pad: [80,80,80,80],
+        line: {
+            colorscale: [[0, 'red'], [0.5, 'green'], [1, 'blue']]
+        },
         
-        if (expression[i] == "+" || expression[i] == "-") {
-            //deal with signs later
-            curr += expression[i];
-            ++i;
-        } else if (expression[i] == " ") {
-            if (curr != "+") {
-                tokens.push(curr);
-                curr = "";
+        dimensions: [{
+            range: [2, 4.5],
+            constraintrange: [2, 2.25],
+            label: param_titles[0],
+            values: xs
+        }, {
+            range: [4,8],
+            label: param_titles[1],
+            values: ys
+        }, {
+            label: param_titles[2],
+            range: [0, 2.5],
+            values: zs
+        }, {
+            label: param_titles[3],
+            range: [1, 7],
+            values: ts
+        }]
+        }];
+
+              
+        Plotly.newPlot('graph1', data);
+
+        document.getElementById('information').innerText = "\n\nHumans are generally very bad at interpreting data in more than three dimensions. " + 
+                                                            "We can attempt to visualise data by tabulating it or by Parallel Coordinate Plots as " +
+                                                            "done to the left for our sample data. Slide the slider up and down to look down different data points." +
+                                                            "You can probably tell that generally it is almost impossible to discern any important features from the data like this." +
+                                                            " We will look at Principle Component Analysis " +
+                                                            "as a way of successfully reducing the dimensionality of this data in a manner that most preserves the " +
+                                                            "meaning of, or the patterns within, it.\n\n Select two parameters below to try and find" +
+                                                            "some kind of relationship between all the variables. It's hard!\n\n";
+        
+        setupButtons(graphWithParams);
+}
+
+// This is called when any of the parameter buttons are pressed
+// We discern which button is pressed from the id attribute set priorly
+
+function graphWithParams(selected) {
+
+    active_button_queue_dataset[0] = active_button_queue_dataset[1];
+    active_button_queue_dataset[1] = param_titles.findIndex(title => title == selected.srcElement.id);
+
+    var xs = []; var ys = [];
+    high_dim_set.forEach(vector => xs.push(vector[active_button_queue_dataset[0]]));
+    high_dim_set.forEach(vector => ys.push(vector[active_button_queue_dataset[1]]));
+
+    var data = [
+        {
+            x : xs, y : ys,
+            mode: 'markers',
+            type: 'scatter'
+        }
+    ]
+
+    var layout = {
+        title: {
+            text: param_titles[active_button_queue_dataset[0]] + ' vs ' + param_titles[active_button_queue_dataset[1]],
+            font: {
+              size: 18
+            },
+            xref: 'paper',
+            x: 0.05,
+          },
+          xaxis: {
+            title: {
+              text: param_titles[active_button_queue_dataset[0]],
+              font: {
+                size: 12,
+                color: '#7f7f7f'
+              }
+            },
+          },
+          yaxis: {
+            title: {
+              text: param_titles[active_button_queue_dataset[0]],
+              font: {
+                size: 12,
+                color: '#7f7f7f'
+              }
             }
-            ++i;
-        } else {
-            // could be a number, **, symbol
-            curr += expression[i];
-            ++i;
-        }
-        
-        if (i == expression.length) {
-            tokens.push(curr);
-            curr = "";
-        }
+          }
+    };
 
+    Plotly.newPlot('graph2', data, layout);
+
+    if (!extra_text_p1) {
+        document.getElementById('information').innerText += "As you can see, even exploring data in just four dimensions can be difficult."  +
+                                                        "There's alot of not so relevant relationships.\n\n"
+        extra_text_p1 = true;
     }
-
-    return tokens;
 }
 
-function firstDerivative(formula) {
+function setupButtons(fx) {
+    var buttons = [];                                                    
 
-    if (formula == "0") {
-        return "0";
+    for (var i = 0; i < param_titles.length; ++i) {
+        buttons.push(document.createElement("button"));
     }
 
-    if (formula[0] != '+' || formula[0] != '-') {
-        formula = "+" + formula;
+    for (var i = 0; i < buttons.length; ++i) {
+        buttons[i].innerHTML = param_titles[i];
+        buttons[i].id = param_titles[i];
+        buttons[i].onclick = function(i) { fx(i) };
+        document.getElementById('params').appendChild(buttons[i]);
     }
+}
 
-    var tokens = tokeniseExps(formula);
-    var derivedTokens = [];
+function covariance2D(selected) {
 
-    tokens.forEach(token => {
-        if (token != "") {
-            derivedTokens.push(computeDerivative(token));
-        }
+    active_button_queue_covariance[0] = active_button_queue_covariance[1];
+    active_button_queue_covariance[1] = param_titles.findIndex(title => title == selected.srcElement.id);
+    // X = active_button_queue_covariance[0], Y = active_button_queue_covariance[0]
+    // E[XY] - E[X]E[Y]
+
+    var centred_matrix = PCA.computeDeviationMatrix(small_data_set);
+
+    var covariance = 0;
+    var x_mean = 0; var y_mean = 0;
+
+    centred_matrix.forEach(vector => {
+        x_mean += vector[active_button_queue_covariance[0]];
+        y_mean += vector[active_button_queue_covariance[1]];
     });
 
-    var derivative = derivedTokens[0];
+    x_mean /= centred_matrix.length;
+    y_mean /= centred_matrix.length;
 
-    derivedTokens.slice(1, derivedTokens.length).forEach(d => {
-        derivative += " + " + d;
+    centred_matrix.forEach(vector => {
+        covariance += (vector[active_button_queue_covariance[0]] - x_mean) * (vector[active_button_queue_covariance[1]] - y_mean);
     });
 
-    return derivative;
+    covariance = covariance / centred_matrix.length;
+
+    document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
+                                                        "As Covariance can only be calculated between two variables, we compute a Covariance matrix " +
+                                                        "to represent the covariances between all the permutations of two random variables. We can do so for the " +
+                                                        "same dataset here. \n\nThe first step is to center the data around 0 by subtracting each " +
+                                                        "data point by the mean. As we are trying to only analyse the most relevant, pairs of attributes with very positive " +
+                                                        "or negative covariance will be of interest as this suggests some sort of relationship between dimensions." +
+                                                        "\n\nCompute some covariances in our sample data below.\n\n";
+    document.getElementById('information').innerText += param_titles[active_button_queue_covariance[0]] + " and " +
+                                                            param_titles[active_button_queue_covariance[1]] + "'s covariance:\n" + 
+                                                            "X = " + param_titles[active_button_queue_covariance[0]] + ", " +
+                                                            "Y = " + param_titles[active_button_queue_covariance[1]] + "\n" +
+                                                            "Cov(X, Y) = " + covariance + "\n\n";
+
+
+    return covariance;
+
 }
 
-function nthDerivative(formula, n) {
-    var derivative;
-    for(var i = 0; i < n; ++i) {
-        derivative = firstDerivative(formula);
-        formula = derivative;
-    }
-    return formula;
-}
+function covarianceSetup() {
+//     var script = document.createElement("script");
+//   script.type = "text/javascript";
+//   script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML";   // use the location of your MathJax
 
-function generateGraphData(expression, derivative, n) {
+//   var config = 'MathJax.Hub.Config({ config: "MathJax.js" }); ' +
+//                'MathJax.Hub.Startup.onload();';
 
-    var xs = numeric.linspace(-50, 50, 2500);
-    var ysExpression = numeric.linspace(-50, 50, 2500);
-    var ysDerivative = numeric.linspace(-50, 50, 2500);
+//   if (window.opera) {script.innerHTML = config}
+//                else {script.text = config}
 
-    for(var i = 0; i < ysExpression.length; ++i) {
-        var x = xs[i];
-        ysExpression[i] = eval(expression);
-    }
+//   document.getElementById('graph1').appendChild(script);
 
-    // var find = '(';
-    // var re = new RegExp(find, 'g');
+    document.getElementsByClassName('covariance_matrix')[0].style.display = "block";
+    document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
+                                                        "As Covariance can only be calculated between two variables, we compute a Covariance matrix " +
+                                                        "to represent the covariances between all the permutations of two random variables. We can do so for the " +
+                                                        "same dataset here. \n\nThe first step is to center the data around 0 by subtracting each " +
+                                                        "data point by the mean. As we are trying to only analyse the most relevant relationships, pairs of attributes " +
+                                                        "with very positive or negative covariance will be of interest as this suggests some sort " +
+                                                        "of relationship between dimensions.\n\nCompute some covariances in our sample data below.\n\n";
+    var centred_matrix = PCA.computeDeviationMatrix(PCA.transpose(small_data_set));
+    var deviation_matrix = PCA.computeDeviationScores(centred_matrix);
+    var covariance_matrix = PCA.computeVarianceCovariance(deviation_matrix, true);
+    
+    setupButtons(covariance2D);
 
-    derivative = derivative.replace("(", " * (");
 
-    // for (var i = 0; i < variables; ++i) {
-    //     derivative = derivative.replace("(", " * (");
-    // }
+    // TODO: some kind of latexy explanation of covariance formula etc.
 
-    for(var i = 0; i < ysDerivative.length; ++i) {
-        var x = xs[i];
-        ysDerivative[i] = eval(derivative);
-        if (ysDerivative[i] == NaN) {
-            ysDerivative[i] = 0;
-        }
-    }
-
-    var data = [{
-        x: xs,
-        y: ysExpression,
-        type: 'scatter',
-        name: 'f(x)'
-    },
-    {
-        x: xs,
-        y: ysDerivative,
-        type: 'scatter',
-        name: 'f' + n.sup() + '(x)'
-    }];
-
-    return data;
-}
-
-function initGraph(type) {
-    Plotly.purge("graph");
-
-    var n = parseFloat(document.getElementById('aController').value);
-
-    var formula = document.getElementById('aInput').value;
-    var nthderivative = nthDerivative(formula, n);
-    var data = generateGraphData(formula, nthderivative, n.toString(10));
-
-    Plotly.newPlot('graph', data, layout);
-
-    return;
 }
 
 function switchTab(tabName) {
-    // Hide all elements with class="tabcontent" by default */
 
-    var iDiv = document.createElement('div');
-    iDiv.id = 'block';
-    iDiv.className = 'block';
-    var d = document.getElementById("graph");
-    d.appendChild(iDiv);
-    
-    // Now create and append to iDiv
-    var innerDiv = document.createElement('div');
-    innerDiv.className = 'block-2';
-    // The variable iDiv is still good... Just append to it.
-    iDiv.appendChild(innerDiv);
-    document.getElementById('graph').innerHTML = tabName;
-  
-    // Show the specific tab content
-    document.getElementById(tabName).style.display = "block";
-  
-    // Add the specific color to the button used to open the tab content
+    document.getElementById('graph1').innerHTML = "";
+    document.getElementById('graph2').innerHTML = "";
+    document.getElementById('params').innerHTML = "";
+    document.getElementById('information').innerHTML = "";
+
+    switch(tabName) {
+        case 'Dataset':
+            extra_text_p1 = false;
+            document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
+            datasetVisualisation();
+            break;
+        case 'Covariance':
+            //document.getElementById('graph').innerHTML = tabName;
+            extra_text_p1 = false;
+            document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
+            covarianceSetup();
+            break;
+        case 'Eigenvectors':
+            extra_text_p1 = false;
+            document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
+            var eigenvectors = PCA.getEigenVectors(high_dim_set);
+
+            //document.getElementById('graph').innerHTML = tabName;
+            break;
+        case 'Result':
+            extra_text_p1 = false;
+            document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
+            //document.getElementById('graph').innerHTML = tabName;
+            var xs = [];
+            var ys = [];
+            var zs = [];
+
+            high_dim_set.forEach(vector => {
+                xs.push(vector[0]);
+                ys.push(vector[1]);
+                zs.push(vector[2]);
+            });
+
+            var data = [
+                {
+                    x: xs, y: ys, z: zs,
+                    mode: 'markers',
+                    marker: {
+                        size: 5,
+                        line: {
+                            color: 'rgba(100, 100, 100, 0.14)',
+                            width: 0.5},
+                            opacity: 0.5},
+                    type: 'scatter3d'
+                }
+            ];
+
+            var layout = {
+                width: 600, height: 400,
+                margin: {l:0, r:0, t:0, b:0},
+                hovermode: "closest",
+                showlegend: false,
+                xaxis: {range: [-100, 100], zeroline: true, title: "x"},
+                yaxis: {range: [-100, 100], zeroline: true, title: "y"},
+                aspectratio: {x:1, y:1}
+            };
+
+            Plotly.newPlot('graph1', data, layout);
+
+
+            break;
+    }
+
+    //document.getElementById('graph').innerHTML = tabName;
+
     //elmnt.style.backgroundColor = color;
   }
   
 
-/** updates the plot according to the slider controls. */
-function updatePlot() {
-    
-    var data = [];
 
-    var n = parseFloat(document.getElementById('aController').value);
-    var formula = document.getElementById('aInput').value;
-    var nthderivative = nthDerivative(formula, n);
-    data = generateGraphData(formula, nthderivative, n.toString(10));
-
-    Plotly.animate(
-        'graph',
-        {data: data},
-        {
-            fromcurrent: true,
-            transition: {duration: 0,},
-            frame: {duration: 0, redraw: false,},
-            mode: "afterall"
-        }
-    );
-
-}
 
 function main() {
     /*Jquery*/ //NB: Put Jquery stuff in the main not in HTML
@@ -253,7 +310,7 @@ function main() {
         $(this).on('input', function(){
             //Displays: (FLT Value) + (Corresponding Unit(if defined))
             $("#"+$(this).attr("id") + "Display").text( $(this).val() + $("#"+$(this).attr("id") + "Display").attr("data-unit") );
-            updatePlot(); //Updating the plot is linked with display (Just My preference)
+            // updatePlot(); //Updating the plot is linked with display (Just My preference)
         
         });
 
@@ -268,11 +325,11 @@ function main() {
             $('.tab-pane.active', $(href).parent()).removeClass('active');
             $(href).addClass('active');
 
-            initGraph(href); //re-initialise when tab is changed
+            pcaIntro(href); //re-initialise when tab is changed
             return false;
         });
     });
 
-    initGraph("#basis");
+    pcaIntro("#basis");
 }
 $(document).ready(main); //Load main when document is ready.

@@ -405,22 +405,21 @@ function eigenvectorsSetup() {
     Plotly.newPlot('graph2', data, layout);
     
     const graphWithParamsEigenvectors = function(selected) {
+
+        var xs = []; var ys = []; var zs = []; var xyz_space = []; var pc_xyz = [[[],[],[]], [[],[],[]], [[],[],[]]];
+
     
         var pcs = document.getElementById('aController') == null ? 3 : parseFloat(document.getElementById('aController').value);
         active_button_queue_eigenvectors[0] = active_button_queue_eigenvectors[1];
         active_button_queue_eigenvectors[1] = active_button_queue_eigenvectors[2];
         active_button_queue_eigenvectors[2] = param_titles.findIndex(title => title == selected.srcElement.id);
     
-        var xs = []; var ys = []; var zs = [];
-
         deviation_flower_set.forEach(vector => {
             xs.push(vector[active_button_queue_eigenvectors[0]]); 
             ys.push(vector[active_button_queue_eigenvectors[1]]); 
             zs.push(vector[active_button_queue_eigenvectors[2]]);
         });
     
-        var xyz_space = []; var pc_xyz = [[[],[],[]], [[],[],[]], [[],[],[]]];
-
         xyz_space.push(numeric.linspace(-8, 8, 100), 
         numeric.linspace(-8, 8, 100),
         numeric.linspace(-8, 8, 100));
@@ -578,6 +577,7 @@ function eigenvectorsSetup() {
                     },
                     
             };
+
             layout.title.zaxis = {
                 title: {
                     text: param_titles[active_button_queue_eigenvectors[2]],

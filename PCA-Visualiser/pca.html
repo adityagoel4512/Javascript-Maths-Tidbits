@@ -47,8 +47,8 @@
             <button class="tablink" onclick="switchTab('Dataset')" id="defaultOpen">Analyse Dataset</button>
             <button class="tablink" onclick="switchTab('Variance')">Understanding Spread</button>
             <button class="tablink" onclick="switchTab('Covariance')">Compute Covariance Matrix</button>
-            <button class="tablink" onclick="switchTab('Eigenvectors')">Compute Eigenvalues and Eigenvectors</button>
-            <button class="tablink" onclick="switchTab('Result')">Dimensionality Reduction and Result</button>
+            <button class="tablink" onclick="switchTab('Eigenvectors')">Compute Eigenvectors and Dimensionality Reduction</button>
+            <button class="tablink" onclick="switchTab('Result')">Result and Data Reconstruction</button>
         
         <div class="row">
             
@@ -76,7 +76,7 @@
                  <div class='variance_maths' style="widows: 550%px; height:550%px; display:none">
                     <body>  <br /><br />To understand standard deviation, we need a data set. Statisticians are usually concerned with taking a sample of a population. To use election polls as an example, the
                             population is all the people in the country, whereas a sample is a subset of the population that the statisticians measure. The great thing about statistics is that by only
-                            measuring (in this case by doing a phone survey or similar) a sample of the population, you can work out what is most likely to be the measurement if you used the entire population. 
+                            measuring (in this case by doing going out and measuring some flowers) a sample of the population, you can work out what is most likely to be the measurement if you used the entire population. 
                             From here on out, we assume all data is sampled. It's worth reading up on sampling if you have the time.<br><br> One of the things we can compute from our dataset is mean, as follows: 
                             $$\bar X = \frac{\sum_{i=0}^n X_i}{n}$$                    
                             Another feature of the data we may wish to understand is the spread. Highly spread data, as you can see, has a high magnitude standard deviation and thus a large variance - this should be obvious below.
@@ -99,9 +99,9 @@
 
                     <!--Slider Display--> <!--Linked with the slider below-->
                     <!--Linked with a slider and shows the live values of its corresponding slider-->
-                    <div id='information' style="widows: 400%; height:320%px;"></div>
-                    <div id='params' style="widows: 400%; height:100%px;"></div>
-                    <div id='graph2' style="widows: 550%;; height:550%px;"></div>
+                    <div id='information' style="widows: 600%; height:320%px;"></div>
+                    <div id='params' style="widows: 600%; height:100%px;"></div>
+                    <div id='graph2' style="widows: 600%;; height:550%px;"></div>
 
             </div>
         </div>

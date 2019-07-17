@@ -232,7 +232,9 @@ function datasetVisualisation() {
             active_button_queue_dataset[1] = param_titles.findIndex(title => title == selected.srcElement.id);
         
             var xs = []; var ys = [];
-            flower_set.forEach(vector => {xs.push(vector[active_button_queue_dataset[0]]); ys.push(vector[active_button_queue_dataset[1]]);});
+            flower_set.forEach(vector => {
+                xs.push(vector[active_button_queue_dataset[0]]); ys.push(vector[active_button_queue_dataset[1]]);
+            });
         
             var data = [
                 {

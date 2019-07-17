@@ -158,8 +158,8 @@ var active_button_queue_dataset = [0, 1];
 var active_button_queue_covariance = [0, 1];
 var active_button_queue_eigenvectors = [3, 1, 2];
 var param_titles = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'];
-var extra_text_p1 = false;
-var extra_text_p3 = false;
+var extraTextp1 = false;
+var extraTextp3 = false;
 var f_index = [];
 
 function pcaIntro() {
@@ -289,10 +289,10 @@ function datasetVisualisation() {
         
             Plotly.newPlot('graph2', data, layout);
         
-            if (!extra_text_p1) {
+            if (!extraTextp1) {
                 document.getElementById('information').innerText += "As you can see, even exploring data in just four dimensions can be difficult, if not impossible. "  +
                                                                 "There's alot of not so relevant relationships.\n\n"
-                extra_text_p1 = true;
+                extraTextp1 = true;
             }
         }
 
@@ -453,6 +453,7 @@ function eigenvectorsSetup() {
             } : {};
 
             var recomputedData = PCA.computeAdjustedData(flower_set, eigenvectors[0], eigenvectors[1], eigenvectors[2]);
+
             var adjData = pcs == 3 ? 
             {
                 x : recomputedData.adjustedData[0], y : recomputedData.adjustedData[1], z : recomputedData.adjustedData[2],
@@ -472,6 +473,7 @@ function eigenvectorsSetup() {
                     size: 5,
                 }
             };
+
             var setosaData = pcs == 3 ? 
             {   x : xs.slice(0, f_index[0]), y : ys.slice(0, f_index[0]), z : zs.slice(0, f_index[0]),
                 name: 'Setosa Data',
@@ -487,6 +489,7 @@ function eigenvectorsSetup() {
                 marker: {
                     size: 5
             }};
+
             var versicolorData = pcs == 3 ? 
             {   x : xs.slice(f_index[0], f_index[1]), y : ys.slice(f_index[0], f_index[1]), z : zs.slice(f_index[0], f_index[1]),
                 name: 'Versicolor Data',
@@ -502,6 +505,7 @@ function eigenvectorsSetup() {
                 marker: {
                     size: 5
             }};
+            
             var virginicaData = pcs == 3 ? 
             {   x : xs.slice(f_index[1]), y : ys.slice(f_index[1]), z : zs.slice(f_index[1]),
                 name: 'Virginica Data',
@@ -599,7 +603,7 @@ function eigenvectorsSetup() {
     
         plot_pc_graph();
 
-        if (!extra_text_p3) {
+        if (!extraTextp3) {
             document.getElementById('information').innerHTML +=  "It seems that one of these principle components seems to somewhat goes through the middle of the cloud of data points, like a line of best fit. " +
                                                                     "<br><br>The second principle component, and so on give us other, less important, patterns in the data. This makes sense! The vectors correspond to the most important eigenvectors (as determined by the magnitude of their eigenvalues) " +
                                                                     "of the covariance matrix, which itself encodes the relationships between all the data attributes.<br><br>" +
@@ -610,9 +614,13 @@ function eigenvectorsSetup() {
 
             document.getElementById('information').innerHTML += "<label class=\"sliderTitle\">Number of Principle Components:&nbsp;<span id=\"aControllerDisplay\" data-unit=\"\">3</span> </label><label class=\"slider\"><input id=\"aController\" class=\"inputs\" type=\"range\" value=\"3\" min=\"2\" max=\"3\" step=\"1\"/></label>"; 
             document.getElementById('graph1').innerHTML += "";
-            document.getElementById('aController').onchange = function() {pcs = parseFloat(document.getElementById('aController').value); document.getElementById('aControllerDisplay').innerText = pcs; plot_pc_graph();};
+            document.getElementById('aController').onchange = function() {
+                pcs = parseFloat(document.getElementById('aController').value); 
+                document.getElementById('aControllerDisplay').innerText = pcs; 
+                plot_pc_graph();
+            };
 
-            extra_text_p3 = true;
+            extraTextp3 = true;
         }
     };
 
@@ -702,8 +710,8 @@ function switchTab(tabName) {
     document.getElementById('graph2').innerHTML = "";
     document.getElementById('params').innerHTML = "";
     document.getElementById('information').innerHTML = "";
-    extra_text_p1 = false;
-    extra_text_p3 = false;
+    extraTextp1 = false;
+    extraTextp3 = false;
     document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
     document.getElementsByClassName('variance_maths')[0].style.display = "none";
 

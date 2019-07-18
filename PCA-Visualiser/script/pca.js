@@ -226,7 +226,7 @@ function datasetVisualisation() {
                                                             "meaning of, or the patterns within, it.\n\n Select two parameters below to try and find" +
                                                             "some kind of conclusive relationship between all the variables. It's hard!\n\n";
         
-        const graphWithParamsDataset = function(selected) {
+        const graphWithParamsDataset = (selected) => {
 
             active_button_queue_dataset[0] = active_button_queue_dataset[1];
             active_button_queue_dataset[1] = param_titles.findIndex(title => title == selected.srcElement.id);
@@ -312,51 +312,12 @@ function setupButtons(fx) {
     for (var i = 0; i < buttons.length; ++i) {
         buttons[i].innerHTML = param_titles[i];
         buttons[i].id = param_titles[i];
-        buttons[i].onclick = function(i) { fx(i) };
+        buttons[i].onclick = (i) => { fx(i) };
         document.getElementById('params').appendChild(buttons[i]);
     }
 }
 
-function covariance2D(selected) {
-
-    active_button_queue_covariance[0] = active_button_queue_covariance[1];
-    active_button_queue_covariance[1] = param_titles.findIndex(title => title == selected.srcElement.id);
-
-    var centred_matrix = PCA.computeDeviationMatrix(flower_set);
-    var covariance = 0;
-    var x_mean = 0; var y_mean = 0;
-
-    centred_matrix.forEach(vector => {
-        x_mean += vector[active_button_queue_covariance[0]];
-        y_mean += vector[active_button_queue_covariance[1]];
-    });
-
-    // Sample
-    x_mean /= centred_matrix.length;
-    y_mean /= centred_matrix.length;
-
-    centred_matrix.forEach(vector => {
-        covariance += (vector[active_button_queue_covariance[0]] - x_mean) * (vector[active_button_queue_covariance[1]] - y_mean);
-    });
-
-    covariance /= (centred_matrix.length-1);
-
-    document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
-                                                        "As Covariance can only be calculated between two variables, we compute a Covariance matrix " +
-                                                        "to represent the covariances between all the permutations of two random variables. We can do so for the " +
-                                                        "same dataset here. \n\nThe first step is to center the data around 0 by subtracting each " +
-                                                        "data point by the mean. As we are trying to only analyse the most relevant, pairs of attributes with very positive " +
-                                                        "or negative covariance will be of interest as this suggests some sort of relationship between dimensions." +
-                                                        "\n\nCompute the covariances between attributes of our real dataset by picking two points below.\n\n";
-    document.getElementById('information').innerText += param_titles[active_button_queue_covariance[0]] + " and " +
-                                                            param_titles[active_button_queue_covariance[1]] + "'s covariance:\n" + 
-                                                            "X = " + param_titles[active_button_queue_covariance[0]] + ", " +
-                                                            "Y = " + param_titles[active_button_queue_covariance[1]] + "\n" +
-                                                            "Cov(X, Y) = " + covariance + "\n\n";
-
-}
-
-function covarianceSetup() {
+function covarianceSetup(covarianceM) {
 
     document.getElementsByClassName('covariance_matrix')[0].style.display = "block";
     document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
@@ -367,31 +328,103 @@ function covarianceSetup() {
                                                         "with very positive or negative covariance will be of interest as this suggests some sort " +
                                                         "of relationship between dimensions.\n\nCompute some covariances in our sample data below.\n\n";
     
-    setupButtons(covariance2D);
+    setupButtons((selected) => {
 
+        active_button_queue_covariance[0] = active_button_queue_covariance[1];
+        active_button_queue_covariance[1] = param_titles.findIndex(title => title == selected.srcElement.id);
+    
+        var covariance = covarianceM[active_button_queue_covariance[0]][active_button_queue_covariance[1]];
+    
+        document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
+                                                            "As Covariance can only be calculated between two variables, we compute a Covariance matrix " +
+                                                            "to represent the covariances between all the permutations of two random variables. We can do so for the " +
+                                                            "same dataset here. \n\nThe first step is to center the data around 0 by subtracting each " +
+                                                            "data point by the mean. As we are trying to only analyse the most relevant, pairs of attributes with very positive " +
+                                                            "or negative covariance will be of interest as this suggests some sort of relationship between dimensions." +
+                                                            "\n\nCompute the covariances between attributes of the normalised dataset by picking two points below.\n\n";
+        document.getElementById('information').innerText += param_titles[active_button_queue_covariance[0]] + " and " +
+                                                                param_titles[active_button_queue_covariance[1]] + "'s covariance:\n" + 
+                                                                "X = " + param_titles[active_button_queue_covariance[0]] + ", " +
+                                                                "Y = " + param_titles[active_button_queue_covariance[1]] + "\n" +
+                                                                "Cov(X, Y) = " + covariance + "\n\n";
+    
+    });
 }
 
-function eigenvectorsSetup() {
+function dotProduct(xs, ys) {
+    console.assert(xs.length == ys.length);
+    return  numeric.linspace(0, xs.length-1, xs.length)
+           .map(i => xs[i] * ys[i])
+           .reduce((x, y) => x + y, 0);
+}
+
+function transposeMatrix(xs) {
+    var transpose = [];
+    xs[0].forEach(() => transpose.push([]));
+    for (var i = 0; i < xs.length; ++i) {
+        for (var j = 0; j < xs[i].length; ++j) {
+            transpose[j].push(xs[i][j]);
+        }
+    }
+    return transpose;
+}
+
+function normaliseData(data) {
+    var means = []; var stdDevs = []; var ts = [];
+    var transpose = transposeMatrix(data);
+    for (var i = 0; i < transpose.length; ++i) {
+        means[i] = transpose[i].reduce((x,y) => x+y, 0) / transpose[i].length;
+        stdDevs[i] = Math.sqrt(transpose[i].map(x => (x - means[i]) ** 2).reduce((x,y) => x+y, 0) / (transpose[i].length - 1));
+        for (var j = 0; j < transpose[i].length; ++j) {
+            transpose[i][j] = (transpose[i][j] - means[i]) / stdDevs[i];
+        }
+    }
+    return transposeMatrix(transpose);
+}
+
+function covarianceMatrix(normalisedData) {
+    var cov = [[], [], [], []];
+    var transpose = transposeMatrix(normalisedData);
+    for (var i = 0; i < transpose.length; ++i) {
+        for (var j = 0; j < transpose.length; ++j) {
+            cov[i].push(dotProduct(transpose[i], transpose[j]) / (transpose[i].length - 1));
+        }
+    }
+    return cov;
+}
+
+function scalarProduct(lambda, xs) {
+    return xs.map(x => x * lambda);
+}
+
+function eigenvectorsSetup(normalisedData, eigs) {
     document.getElementById('information').innerHTML = "<br><br><a href=\"/home/adi/Desktop/Physics-Visualizations/visuals_maths/Eigenvectors/index.html\">Click here for a quick primer about Eigenvectors.</a>" +
                                                        "<p1><br><br>Since the covariance matrix is square, we can calculate the eigenvectors and eigenvalues for this matrix. " +
                                                        "These are rather important, as they tell us useful information about our data as you will find out." + 
                                                        "<br><br>Choose the number of principle components with the slider - what do you notice about how the adjusted data behaves with respect to the Principle Component axes?<br><br>";
-    
 
-    var deviation_flower_set = PCA.computeDeviationMatrix(flower_set);
-    var eigenvectors = PCA.getEigenVectors(deviation_flower_set);
-
+    var order = numeric.linspace(0, eigs.E.x.length-1, eigs.E.x.length).sort((i, j) => {return (eigs.lambda.x[j] - eigs.lambda.x[i]);});
+    var eigenvectors2 = [];
     
-    var importance_3_pc = [];
-    for(var i = 0; i < 3; ++i) {
-        importance_3_pc.push(1*Math.round(100 * PCA.computePercentageExplained(eigenvectors, eigenvectors[i])));
+    for (var i = 0; i < eigs.E.x.length; ++i) {
+        eigenvectors2.push(transposeMatrix(eigs.E.x)[order[i]]);
+    }
+
+    var transformationMatrix = transposeMatrix(eigenvectors2);
+    var newdata = math.multiply(normalisedData, transformationMatrix);
+    
+    
+    var importance_pc = [];
+    var total_eigs = eigs.lambda.x.reduce((e1, e2) => e1 + e2, 0);
+    for(var i = 0; i < eigs.lambda.x.length; ++i) {
+        importance_pc.push(Math.round(100 * eigs.lambda.x[order[i]]/total_eigs));
     }
 
     var data = [{
-    x: ['PC1', 'PC2', 'PC3'],
-    y: importance_3_pc,
+    x: ['PC1', 'PC2', 'PC3', 'PC4'],
+    y: importance_pc,
     type: 'bar',
-    text: importance_3_pc.map(String),
+    text: importance_pc.map(String),
     textposition: 'auto',
     hoverinfo: 'none',
     marker: {
@@ -405,216 +438,108 @@ function eigenvectorsSetup() {
     }];
 
     var layout = {
-        title: 'Importance of the first 3 principle components in flower dataset (%)'
+        title: 'Explained Variance of the 4 principle components in flower dataset (%)'
     };
 
     Plotly.newPlot('graph2', data, layout);
     
-    const graphWithParamsEigenvectors = function(selected) {
-
-        var xs = []; var ys = []; var zs = []; var xyz_space = []; var pc_xyz = [[[],[],[]], [[],[],[]], [[],[],[]]];
-
+    const graphWithParamsEigenvectors = () => {
     
         var pcs = document.getElementById('aController') == null ? 3 : parseFloat(document.getElementById('aController').value);
-        active_button_queue_eigenvectors[0] = active_button_queue_eigenvectors[1];
-        active_button_queue_eigenvectors[1] = active_button_queue_eigenvectors[2];
-        active_button_queue_eigenvectors[2] = param_titles.findIndex(title => title == selected.srcElement.id);
-    
-        deviation_flower_set.forEach(vector => {
-            xs.push(vector[active_button_queue_eigenvectors[0]]); 
-            ys.push(vector[active_button_queue_eigenvectors[1]]); 
-            zs.push(vector[active_button_queue_eigenvectors[2]]);
-        });
-    
-        xyz_space.push(numeric.linspace(-8, 8, 100), 
-        numeric.linspace(-8, 8, 100),
-        numeric.linspace(-8, 8, 100));
-    
-        for (var i = 0; i < pc_xyz.length; ++i) {
-            for(var j = 0; j < xyz_space.length; ++j) {
-                xyz_space[j].forEach(element => {
-                    pc_xyz[i][j].push(eigenvectors[i].vector[j] * element);
-                });
-            }
-        }
 
-        const plot_pc_graph = function() {
+
+        const plot_pc_graph = () => {
 
             var scatter = pcs == 3 ? 'scatter3d' : 'scatter';
-            var pc3data = pcs == 3 ? 
-            {
-                x : pc_xyz[2][0], y : pc_xyz[2][1], z : pc_xyz[2][2],
-                name: 'PC',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-                }
-            } : {};
-
-            var recomputedData = PCA.computeAdjustedData(flower_set, eigenvectors[0], eigenvectors[1], eigenvectors[2]);
-
-            var adjData = pcs == 3 ? 
-            {
-                x : recomputedData.adjustedData[0], y : recomputedData.adjustedData[1], z : recomputedData.adjustedData[2],
-                name: 'Adjusted Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5,
-                }
-            } :
-            {
-                x : recomputedData.adjustedData[0], y : recomputedData.adjustedData[1],
-                name: 'Adjusted Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5,
-                }
-            };
-
-            var setosaData = pcs == 3 ? 
-            {   x : xs.slice(0, f_index[0]), y : ys.slice(0, f_index[0]), z : zs.slice(0, f_index[0]),
-                name: 'Setosa Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }} : 
-            {   x : xs.slice(0, f_index[0]), y : ys.slice(0, f_index[0]),
-                name: 'Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }};
-
-            var versicolorData = pcs == 3 ? 
-            {   x : xs.slice(f_index[0], f_index[1]), y : ys.slice(f_index[0], f_index[1]), z : zs.slice(f_index[0], f_index[1]),
-                name: 'Versicolor Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }} : 
-            {   x : xs.slice(f_index[0], f_index[1]), y : ys.slice(f_index[0], f_index[1]),
-                name: 'Versicolor Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }};
-            
-            var virginicaData = pcs == 3 ? 
-            {   x : xs.slice(f_index[1]), y : ys.slice(f_index[1]), z : zs.slice(f_index[1]),
-                name: 'Virginica Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }} : 
-            {   x : xs.slice(f_index[1]), y : ys.slice(f_index[1]),
-                name: 'Virginica Data',
-                mode: 'markers',
-                type: scatter,
-                marker: {
-                    size: 5
-            }};
 
             var data = [
+                
                 {
-                    x : pc_xyz[0][0], y : pc_xyz[0][1], z : pc_xyz[0][2],
-                    name: 'PC',
+                    x : transposeMatrix(newdata)[0].slice(0, f_index[0]), y : transposeMatrix(newdata)[1].slice(0, f_index[0]), z : transposeMatrix(newdata)[2].slice(0, f_index[0]),
+                    name: 'Adjusted Setosa Data',
                     mode: 'markers',
                     type: scatter,
                     marker: {
-                        size: 5,
+                        size: 5
                     }
                 },
-
                 {
-                    x : pc_xyz[1][0], y : pc_xyz[1][1], z : pc_xyz[1][2],
-                    name: 'PC',
+                    x : transposeMatrix(newdata)[0].slice(f_index[0], f_index[1]), y : transposeMatrix(newdata)[1].slice(f_index[0], f_index[1]), z : transposeMatrix(newdata)[2].slice(f_index[0], f_index[1]),
+                    name: 'Adjusted Versicolor Data',
                     mode: 'markers',
                     type: scatter,
                     marker: {
-                        size: 5,
+                        size: 5
                     }
                 },
-
-                pc3data,
-
-                adjData,
-
-                setosaData,
-
-                versicolorData,
-
-                virginicaData
+                {
+                    x : transposeMatrix(newdata)[0].slice(f_index[1]), y : transposeMatrix(newdata)[1].slice(f_index[1]), z : transposeMatrix(newdata)[2].slice(f_index[1]),
+                    name: 'Adjusted Virginica Data',
+                    mode: 'markers',
+                    type: scatter,
+                    marker: {
+                        size: 5
+                    }
+                },
+                {
+                    x : numeric.linspace(-8, 8, 1000), y : numeric.linspace(0, 0, 1000), z : numeric.linspace(0, 0, 1000),
+                    name: 'PC 1',
+                    mode: 'markers',
+                    type: scatter,
+                    marker: {
+                        size: 2
+                    }
+                },
+                {
+                    x : numeric.linspace(0, 0, 1000), y : numeric.linspace(-8, 8, 1000), z : numeric.linspace(0, 0, 1000),
+                    name: 'PC 2',
+                    mode: 'markers',
+                    type: scatter,
+                    marker: {
+                        size: 2
+                    }
+                },
+                pcs == 3 ? {
+                    x : numeric.linspace(0, 0, 1000), y : numeric.linspace(0, 0, 1000), z : numeric.linspace(-8, 8, 1000),
+                    name: 'PC 3',
+                    mode: 'markers',
+                    type: scatter,
+                    marker: {
+                        size: 2
+                    }
+                } : {},
  
             ];
         
             var layout = {
                 width: document.getElementById('graph1').offsetWidth,
                 height: document.getElementById('graph1').offsetWidth,
-                title: {
-                    text: pcs == 3 ? param_titles[active_button_queue_eigenvectors[0]] + ' vs ' + param_titles[active_button_queue_eigenvectors[1]] + ' vs ' + param_titles[active_button_queue_eigenvectors[2]] : 
-                                     param_titles[active_button_queue_eigenvectors[0]] + ' vs ' + param_titles[active_button_queue_eigenvectors[1]],
-                    font: {
-                        size: 14
-                    },
-                    xref: 'paper',
-                    x: 0.05,
-                    },
-                    xaxis: {
-                    title: {
-                        text: param_titles[active_button_queue_eigenvectors[0]],
-                        font: {
-                        size: 9,
-                        color: '#7f7f7f'
-                        }
-                    },
-                    },
-                    yaxis: {
-                    title: {
-                        text: param_titles[active_button_queue_eigenvectors[1]],
-                        font: {
-                        size: 9,
-                        color: '#7f7f7f'
-                        }
-                    },
-                    },
-                    
-            };
-
-            layout.title.zaxis = {
-                title: {
-                    text: param_titles[active_button_queue_eigenvectors[2]],
-                    font: {
-                    size: 9,
-                    color: '#7f7f7f'
-                    }
-                },
-            };
+                autosize: true
+            };  
         
             Plotly.newPlot('graph1', data, layout);
+            var matrixClass = pcs == 3 ? 'transformation3' : 'transformation2';
+
+            document.getElementsByClassName('transformation3')[0].style.display = "none";
+            document.getElementsByClassName('transformation2')[0].style.display = "none";
+            document.getElementsByClassName(matrixClass)[0].style.display = "block";
         };
     
         plot_pc_graph();
 
-        if (!extraTextp3) {
-            document.getElementById('information').innerHTML +=  "It seems that one of these principle components seems to somewhat goes through the middle of the cloud of data points, like a line of best fit. " +
-                                                                    "<br><br>The second principle component, and so on give us other, less important, patterns in the data. This makes sense! The vectors correspond to the most important eigenvectors (as determined by the magnitude of their eigenvalues) " +
-                                                                    "of the covariance matrix, which itself encodes the relationships between all the data attributes.<br><br>" +
-                                                                    "The rest of the steps involve transforming the data so that it is expressed in terms of these lines into the adjusted data. This dimensionally reduced dataset is obtained " +
-                                                                    "by multiplying the feature vector containing all the used principle component vectors by the transpose of mean adjusted orignial dataset matrix.<br><br>" + 
-                                                                    "We can more easily now see two things: similar flowers cluster together and which attribute of the data is most responsible for this clustering. The adjusted data " +
-                                                                    "above demonstrates this.<br><br></p1>";
+        if (!extraTextp3) {            
 
             document.getElementById('information').innerHTML += "<label class=\"sliderTitle\">Number of Principle Components:&nbsp;<span id=\"aControllerDisplay\" data-unit=\"\">3</span> </label><label class=\"slider\"><input id=\"aController\" class=\"inputs\" type=\"range\" value=\"3\" min=\"2\" max=\"3\" step=\"1\"/></label>"; 
-            document.getElementById('graph1').innerHTML += "";
-            document.getElementById('aController').onchange = function() {
+            pcs = parseFloat(document.getElementById('aController').value); 
+            plot_pc_graph();
+            document.getElementById('information').innerHTML +=  "It seems that one of these principle components seems to somewhat goes through the middle of the cloud of data points, like a line of best fit. " +
+                                                                    "<br><br>The second principle component, and so on give us other, less important, patterns in the data, and so on. This makes sense! The vectors correspond to the most important eigenvectors (as determined by the magnitude of their eigenvalues) " +
+                                                                    "of the covariance matrix, which itself encodes the relationships between all the data attributes.<br><br>" +
+                                                                    "The rest of the steps involve transforming the data so that it is expressed in terms of these lines into the adjusted data. The 2/3 dimension subspace or the reduced dataset to be computed is obtained by " +
+                                                                    "multiplying the feature vector containing all the used principle component vectors by the transpose of normalised dataset matrix as illustrated below the plot. The feature vector is a \"projection matrix\". <br><br>" + 
+                                                                    "We can more easily now see two things: similar flowers cluster together and which attribute of the data is most responsible for this clustering. The adjusted data " +
+                                                                    "above demonstrates this.<br><br></p1>";
+            document.getElementById('aController').onchange = () => {
                 pcs = parseFloat(document.getElementById('aController').value); 
                 document.getElementById('aControllerDisplay').innerText = pcs; 
                 plot_pc_graph();
@@ -622,16 +547,21 @@ function eigenvectorsSetup() {
 
             extraTextp3 = true;
         }
+
     };
 
-    setupButtons(graphWithParamsEigenvectors);
+    graphWithParamsEigenvectors();
+
 }
 
 
 function varianceDemo() {
+
+    // TODO: covariance demo
+
     document.getElementsByClassName('variance_maths')[0].style.display = "block";
     document.getElementById('information').innerHTML = "<br><br><label class=\"sliderTitle\">Standard Deviation:&nbsp;<span id=\"aControllerDisplay\" data-unit=\"\">5</span> </label><label class=\"slider\"><input id=\"aController\" class=\"inputs\" type=\"range\" value=\"5\" min=\"0\" max=\"10\" step=\"1\"/></label>"; 
-    document.getElementById('aController').onchange = function() {
+    document.getElementById('aController').onchange = () => {
         var stdDev = parseFloat(document.getElementById('aController').value); 
         plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, stdDev); 
         document.getElementById('aControllerDisplay').innerText = stdDev;
@@ -659,18 +589,32 @@ function varianceDemo() {
     
         Plotly.newPlot('graph2', data);
     };
+
+    document.getElementById('information').innerHTML += "<body>If you're familiar with the normal distrubution you'll recognise this! We do in fact normalise our dataset to improve the computational efficiency in doing Principle Component Analysis.</body>";
     plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, parseFloat(document.getElementById('aController').value));
 }
 
-function resultSetup() {
-    var eigenvectors = PCA.getEigenVectors(flower_set);
-    var adData = PCA.computeAdjustedData(flower_set, eigenvectors[0], eigenvectors[1], eigenvectors[2]);
+function resultSetup(normalisedData, eigs) {
+
+    // TODO: sort out recomputation
+
+
+    // var order = numeric.linspace(0, eigs.E.x.length-1, eigs.E.x.length).sort((i, j) => {return (eigs.lambda.x[j] - eigs.lambda.x[i]);});
+    // var eigenvectors2 = [];
+    
+    // for (var i = 0; i < eigs.E.x.length; ++i) {
+    //     eigenvectors2.push(transposeMatrix(eigs.E.x)[order[i]]);
+    // }
+
+    // var transformationMatrix = transposeMatrix(eigenvectors2);
+    // var newdata = math.multiply(normalisedData, transformationMatrix);
+
     var compressed = adData.formattedAdjustedData;
     var uncompressed = PCA.computeOriginalData(compressed, adData.selectedVectors, adData.avgData).formattedOriginalData;
 
     document.getElementById('information').innerText = "\n\nWe have derived a new dataset, stripping away some of the dimensionality of the original dataset. So naturally, we must have lost a bit of information about our original dataset during this process right!. " +
                                                        "It turns out we have, and if using PCA to transform for data compression this may be a slight concern. In the same way we used the feature vector (the augmented matrix consisting of the eigenvectors of the covariance matrix) " +
-                                                       "we can use the reduced feature vector we now have to then try to recompute the original data.\n\n" +
+                                                       "we can use the reduced feature vector we now have to then try to recompute the original data. Additionally working with non linear datasets presents other challenges. \n\n" +
                                                        "By repeatedly pressing the button below we can present a random original and the compressed datapoint and you can see that we loose a tiny bit of information generally for each data point. With more complex datasets this can be alot more pronounced.\n\n" +
                                                        "It turns out PCA in this form has many applications that extend beyond normal statistical analysis, especially in Computer Vision and Image Processing, where images are encoded as multidimensional matrices of pixel values.\n\n" +
                                                        "PCA can be used for lossy Image Compression using the dimensionality reduction and then feature recomputation we've discussed. It is known as the KL transform. \n\n" +
@@ -680,7 +624,7 @@ function resultSetup() {
     randomButton.innerHTML = "Compare random data points";
 
     var randPoint = 0;
-    randomButton.onclick = function() {
+    randomButton.onclick = () => {
         
         randPoint = Math.floor((Math.random() * flower_set.length));
 
@@ -714,6 +658,12 @@ function switchTab(tabName) {
     extraTextp3 = false;
     document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
     document.getElementsByClassName('variance_maths')[0].style.display = "none";
+    document.getElementsByClassName('transformation3')[0].style.display = "none";
+    document.getElementsByClassName('transformation2')[0].style.display = "none";
+
+    var normalisedData = normaliseData(flower_set);
+    var covarianceM = covarianceMatrix(normalisedData);
+    var eigs = numeric.eig(covarianceM);
 
     switch(tabName) {
         case 'Dataset':
@@ -723,13 +673,13 @@ function switchTab(tabName) {
             varianceDemo();
             break;
         case 'Covariance':
-            covarianceSetup();
+            covarianceSetup(covarianceM);
             break;
         case 'Eigenvectors':
-            eigenvectorsSetup();    
+            eigenvectorsSetup(normalisedData, eigs);    
             break;
         case 'Result':
-            resultSetup();
+            resultSetup(normalisedData, eigs);
             break;
     }
 

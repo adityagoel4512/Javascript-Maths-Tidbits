@@ -556,9 +556,6 @@ function eigenvectorsSetup(normalisedData, eigs) {
 
 
 function varianceDemo() {
-
-    // TODO: covariance demo
-
     document.getElementsByClassName('variance_maths')[0].style.display = "block";
     document.getElementById('information').innerHTML = "<br><br><label class=\"sliderTitle\">Standard Deviation:&nbsp;<span id=\"aControllerDisplay\" data-unit=\"\">5</span> </label><label class=\"slider\"><input id=\"aController\" class=\"inputs\" type=\"range\" value=\"5\" min=\"0\" max=\"10\" step=\"1\"/></label>"; 
     document.getElementById('aController').onchange = () => {
@@ -594,21 +591,7 @@ function varianceDemo() {
     plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, parseFloat(document.getElementById('aController').value));
 }
 
-function resultSetup(normalisedData, eigs) {
-
-    // TODO: sort out recomputation
-
-
-    // var order = numeric.linspace(0, eigs.E.x.length-1, eigs.E.x.length).sort((i, j) => {return (eigs.lambda.x[j] - eigs.lambda.x[i]);});
-    // var eigenvectors2 = [];
-    
-    // for (var i = 0; i < eigs.E.x.length; ++i) {
-    //     eigenvectors2.push(transposeMatrix(eigs.E.x)[order[i]]);
-    // }
-
-    // var transformationMatrix = transposeMatrix(eigenvectors2);
-    // var newdata = math.multiply(normalisedData, transformationMatrix);
-
+function resultSetup() {
     var compressed = adData.formattedAdjustedData;
     var uncompressed = PCA.computeOriginalData(compressed, adData.selectedVectors, adData.avgData).formattedOriginalData;
 
@@ -679,7 +662,7 @@ function switchTab(tabName) {
             eigenvectorsSetup(normalisedData, eigs);    
             break;
         case 'Result':
-            resultSetup(normalisedData, eigs);
+            resultSetup();
             break;
     }
 

@@ -17,6 +17,20 @@
     <script src="./script/jquery-csv.js"></script>
     <script src="https://cdnjs.com/libraries/mathjs"></script>
 
+    <script type="text/javascript">
+        divVisibilityMap = new Map([['transformationmaths', false], ['explainedvariancemaths', false]]);
+
+        function toggleVisibility(toggleDiv) {
+            visible = !divVisibilityMap.get(toggleDiv);
+            divVisibilityMap.set(toggleDiv, visible); 
+            if (visible) {
+                document.getElementById(toggleDiv).style.display = 'block';
+            } else {
+                document.getElementById(toggleDiv).style.display = 'none';
+            }
+        }
+
+    </script>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 </head>
 <body>
@@ -110,10 +124,10 @@
                             $$
                     </body>
                     <br /> <br /> 
-                    <button class="transformation_maths" onclick="document.getElementById('transformationmaths').style.display = 'block'">See some of the maths behind this</button>
+                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
                     <br />
-            </div>
-            <div class='transformation2' style="widows: 600%px; height:550%px; display:none">
+                </div>
+                <div class='transformation2' style="widows: 600%px; height:550%px; display:none">
                     <body>
                             $$
                                 Reduced Data = Normalised Original Data \cdot Projection Matrix
@@ -137,9 +151,9 @@
                             $$
                     </body>
                     <br /> <br /> 
-                    <button class="transformation_maths" onclick="document.getElementById('transformationmaths').style.display = 'block'">See some of the maths behind this</button>
+                    <button class="transformation_maths" onclick="console.log('click'); toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
                     <br />
-            </div>
+                </div>
             <div id='transformationmaths' style="widows: 600%px; height:550%px; display:none">
                 <body>
                     <br /><br />
@@ -203,7 +217,7 @@
                         \end{bmatrix}
                     $$ 
                     
-                    So if our normalised data is represented as matrix X, the plot we see above is the computed as follows: 
+                    So if our normalised data is represented as matrix X, the plot we see above (when the number of principal components is 2) is the computed as follows: 
 
                     $$
                         W_2 \cdot X
@@ -212,6 +226,8 @@
                     <br /><br />
                 </body>
             </div>
+            <br /><br />
+
             </div>
 
             <!--Bottons/Sliders-->
@@ -226,9 +242,31 @@
                     <div id='information' style="widows: 600%; height:320%px;"></div>
                     <div id='params' style="widows: 600%; height:100%px;"></div>
                     <div id='graph2' style="widows: 600%;; height:550%px;"></div>
-                    <!-- <button class="transformation_maths" onclick="document.getElementById('transformationmaths').style.display = 'block'">See some of the maths behind this</button> -->
+                    <button class="explained_variance_maths" style="display:none;" onclick="toggleVisibility('explainedvariancemaths')">See some of the maths behind the 'Explained Variance'</button>
+                    <div id='explainedvariancemaths' style="widows: 600%px; height:550%px; display:none">
+                            <body>
+                                <br /><br />
+                                Explained variance is a term we use to describe the proportion of the total variation in the data accounted for by a principal component.
+                                The eigenvalues themselves encode this as they come from the eigendecomposition of the covariance matrix.
 
+                                <br/><br/>
 
+                                If the kth principal component P<sub>k</sub> has an associated eigenvalue λ<sub>k</sub>, and we have n principal components, then the Explained Variance of P<sub>k</sub> is
+                                
+                                $$
+                                    \frac{λ_k}{\sum_{i=0}^n λ_i}
+                                $$
+
+                                i.e. calculating PC1's explained variance as above is done as follows:
+                                
+                                $$
+                                    \frac{2.91...}{2.91... + 0.147... + 0.921... + 0.021...} = 0.730...
+                                $$
+            
+                                <br /><br />
+                            </body>
+                    </div>
+                    <br /><br />
             </div>
         </div>
     </div>

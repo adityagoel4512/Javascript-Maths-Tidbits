@@ -170,10 +170,19 @@ function pcaIntro() {
     document.getElementById('graph1').style.fontSize = '130%';
     document.getElementById('graph2').style.fontSize = '130%';
     document.getElementById('transformationmaths').style.fontSize = '130%';
+    document.getElementById('explainedvariancemaths').style.fontSize = '130%';
+    document.getElementById('transformationmaths').style.backgroundColor = 'lightblue'
+    document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue'
     document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
     document.getElementsByClassName('variance_maths')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation3')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation2')[0].style.fontSize = '130%';
+    document.getElementsByClassName('transformation_maths')[0].style.fontSize = '110%';
+    document.getElementsByClassName('explained_variance_maths')[0].style.fontSize = '140%';
+
+    // document.getElementsByClassName('tablink').forEach(tab => {
+    //     tab.style.fontSize = '110%'
+    // })
 
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == versicolor));
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == virginica));
@@ -458,6 +467,7 @@ function eigenvectorsSetup(normalisedData, eigs) {
     };
 
     Plotly.newPlot('graph2', data, layout);
+    document.getElementsByClassName('explained_variance_maths')[0].style.display = "block";
     
     const graphWithParamsEigenvectors = () => {
     
@@ -660,6 +670,9 @@ function switchTab(tabName) {
     document.getElementsByClassName('transformation3')[0].style.display = "none";
     document.getElementsByClassName('transformation2')[0].style.display = "none";
     document.getElementById('transformationmaths').style.display = 'none';
+    document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
+    document.getElementById('explainedvariancemaths').style.display = "none";
+
 
     switch(tabName) {
         case 'Dataset':

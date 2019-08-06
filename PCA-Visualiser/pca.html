@@ -18,7 +18,7 @@
     <script src="https://cdnjs.com/libraries/mathjs"></script>
 
     <script type="text/javascript">
-        divVisibilityMap = new Map([['transformationmaths', false], ['explainedvariancemaths', false]]);
+        divVisibilityMap = new Map([['transformationmaths', false], ['explainedvariancemaths', false], ['covariancematrix', false]]);
 
         function toggleVisibility(toggleDiv) {
             visible = !divVisibilityMap.get(toggleDiv);
@@ -39,10 +39,6 @@
             <div id="Dataset" class="tabcontent">
                     <!--html content for here-->
                 </div>
-
-                <div id="Variance" class="tabcontent">
-                    <!--html content for here-->
-                </div>
                 
                 <div id="Covariance" class="tabcontent">
                     <!--html content for here-->
@@ -57,7 +53,6 @@
                 </div>
 
             <button class="tablink" onclick="switchTab('Dataset')" id="defaultOpen">Analyse Dataset</button>
-            <button class="tablink" onclick="switchTab('Variance')">Understanding Spread</button>
             <button class="tablink" onclick="switchTab('Covariance')">Compute Covariance Matrix</button>
             <button class="tablink" onclick="switchTab('Eigenvectors')">Compute Eigenvectors and Dimensionality Reduction</button>
             <button class="tablink" onclick="switchTab('Result')">Result and Data Reconstruction</button>
@@ -82,9 +77,34 @@
                             $$  
                             <br />
                             Going back to our example data, the random variables are \(sepal width, sepal length, petal width, petal length\). You can compute all the covariances pairwise to the right. The covariance matrix is then populated as shown above.
-                            
+                            <br /><br />
+                            <button class="covariance_matrix" onclick="toggleVisibility('covariancematrix');">More on spread of data</button>
                     </body>       
                  </div>
+
+                 <div id='covariancematrix' style="widows: 600%px; height:550%px; display:none">
+                    
+                        <body>
+                            We can quantify how 'spread' data is by looking at a dataset's standard deviation or variance. If we think about how spread a dataset is, 
+                            it makes sense to look at the mean and see how much all of the datapoints deviate from this. This is what the The Fisher's Iris Dataset we've been investigating 
+                            is a sample from a population obviously.
+
+                            <br/><br/>
+
+                            If the kth principal component P<sub>k</sub> has an associated eigenvalue λ<sub>k</sub>, and we have n principal components, then the Explained Variance of P<sub>k</sub> is
+                            
+                            $$
+                                \frac{λ_k}{\sum_{i=0}^n λ_i}
+                            $$
+
+                            i.e. calculating PC1's explained variance as above is done as follows:
+                            
+                            $$
+                                \frac{2.91...}{2.91... + 0.147... + 0.921... + 0.021...} = 0.730...
+                            $$
+                        </body>
+                </div>
+                
                  <div class='variance_maths' style="widows: 600%px; height:550%px; display:none">
                     <body>  <br /><br />To understand standard deviation, we need a data set. Statisticians are usually concerned with taking a sample of a population. To use election polls as an example, the
                             population is all the people in the country, whereas a sample is a subset of the population that the statisticians measure. The great thing about statistics is that by only
@@ -123,9 +143,8 @@
                                 \end{bmatrix}
                             $$
                     </body>
-                    <br /> <br /> 
-                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
                     <br />
+                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
                 </div>
                 <div class='transformation2' style="widows: 600%px; height:550%px; display:none">
                     <body>
@@ -150,13 +169,11 @@
                                 \end{bmatrix}
                             $$
                     </body>
-                    <br /> <br /> 
-                    <button class="transformation_maths" onclick="console.log('click'); toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
-                    <br />
+                    <br /> 
+                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
                 </div>
             <div id='transformationmaths' style="widows: 600%px; height:550%px; display:none">
                 <body>
-                    <br /><br />
                     Intuitively speaking, an eigenvector is a vector that remains unchanged when a linear transformation is applied to it.<br /><br />
                     i.e Let C be our square covariance matrix, ν a vector and λ a scalar that satisfies Cν = λν, then λ is an eigenvalue associated with eigenvector ν of A.<br /><br />
                     We can therefore compute the eigenvalues by solving the characteristic equation below for λ:
@@ -182,7 +199,7 @@
                     
                     <br/><br/>
 
-                    Ordered Eigenvectors from the Iris-Fischer Dataset:
+                    Ordered Eigenvectors from the Fisher's Iris Dataset:
                     $$
                     \begin{bmatrix}
                     -0.52 \\
@@ -223,7 +240,6 @@
                         W_2 \cdot X
                     $$
 
-                    <br /><br />
                 </body>
             </div>
             <br /><br />
@@ -245,10 +261,8 @@
                     <button class="explained_variance_maths" style="display:none;" onclick="toggleVisibility('explainedvariancemaths')">See some of the maths behind the 'Explained Variance'</button>
                     <div id='explainedvariancemaths' style="widows: 600%px; height:550%px; display:none">
                             <body>
-                                <br /><br />
                                 Explained variance is a term we use to describe the proportion of the total variation in the data accounted for by a principal component.
                                 The eigenvalues themselves encode this as they come from the eigendecomposition of the covariance matrix.
-
                                 <br/><br/>
 
                                 If the kth principal component P<sub>k</sub> has an associated eigenvalue λ<sub>k</sub>, and we have n principal components, then the Explained Variance of P<sub>k</sub> is
@@ -262,8 +276,6 @@
                                 $$
                                     \frac{2.91...}{2.91... + 0.147... + 0.921... + 0.021...} = 0.730...
                                 $$
-            
-                                <br /><br />
                             </body>
                     </div>
                     <br /><br />

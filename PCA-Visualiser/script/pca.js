@@ -173,7 +173,10 @@ function pcaIntro() {
     document.getElementById('explainedvariancemaths').style.fontSize = '130%';
     document.getElementById('transformationmaths').style.backgroundColor = 'lightblue'
     document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue'
+    document.getElementById('covariancematrix').style.backgroundColor = 'lightblue'
+    document.getElementById('covariancematrix').style.fontSize = '130%';
     document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
+    document.getElementsByClassName('covariance_matrix')[1].style.fontSize = '110%';
     document.getElementsByClassName('variance_maths')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation3')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation2')[0].style.fontSize = '130%';
@@ -194,7 +197,7 @@ function pcaIntro() {
     covarianceM = covarianceMatrix(normalisedData);
     eigs = numeric.eig(covarianceM);
 
-    switchTab('Eigenvectors')
+    switchTab('Covariance')
 
 }
 
@@ -672,14 +675,11 @@ function switchTab(tabName) {
     document.getElementById('transformationmaths').style.display = 'none';
     document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
     document.getElementById('explainedvariancemaths').style.display = "none";
-
+    document.getElementById('covariancematrix').style.display = "none";
 
     switch(tabName) {
         case 'Dataset':
             datasetVisualisation();
-            break;
-        case 'Variance':
-            varianceDemo();
             break;
         case 'Covariance':
             covarianceSetup(covarianceM);

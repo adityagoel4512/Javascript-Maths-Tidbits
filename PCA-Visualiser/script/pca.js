@@ -157,12 +157,20 @@ var originalFlowerDataSet = [[5.1,3.5,1.4,0.2,setosa],
 var activeButtonQueueDataset = [0, 1];
 var activeButtonQueueCovariance = [0, 1];
 var parameterTitles = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'];
+var shortenedParameterTitles = ['SL', 'SW', 'PL', 'PW'];
 var extraTextp1 = false;
 var extraTextp3 = false;
 var flowerTypeSplit = [];
 var normalisedData;
 var covarianceM;
 var eigs;
+var partialCovarianceMatrix = [];
+        
+
+// TODO: 1) Add maths background everywhere 
+// TODO: 2) Add variance scroll control
+// TODO: 3) HubQueue
+// TODO: 4) iFrame
 
 function pcaIntro() {
     Plotly.purge("graph1");
@@ -177,10 +185,10 @@ function pcaIntro() {
     document.getElementById('covariancematrix').style.fontSize = '130%';
     document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
     document.getElementsByClassName('covariance_matrix')[1].style.fontSize = '110%';
-    document.getElementsByClassName('variance_maths')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation3')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation2')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation_maths')[0].style.fontSize = '110%';
+    document.getElementsByClassName('transformation_maths')[1].style.fontSize = '110%';
     document.getElementsByClassName('explained_variance_maths')[0].style.fontSize = '140%';
 
     // document.getElementsByClassName('tablink').forEach(tab => {
@@ -196,6 +204,12 @@ function pcaIntro() {
     normalisedData = normaliseData(originalFlowerDataSet);
     covarianceM = covarianceMatrix(normalisedData);
     eigs = numeric.eig(covarianceM);
+    for (var i = 0; i < covarianceM.length; i++) {
+        partialCovarianceMatrix.push([]);
+        for (var j = 0; j < covarianceM.length; j++) {
+            partialCovarianceMatrix[i][j] = 'Cov (' + shortenedParameterTitles[i] + ', ' + shortenedParameterTitles[j] + ')';
+        }
+    }
 
     switchTab('Covariance')
 
@@ -339,8 +353,10 @@ function setupButtons(fx) {
         buttons[i].innerHTML = parameterTitles[i];
         buttons[i].id = parameterTitles[i];
         buttons[i].onclick = (i) => { fx(i) };
+        buttons[i].style.fontSize = '110%'
         document.getElementById('params').appendChild(buttons[i]);
     }
+
 }
 
 function covarianceSetup(covarianceM) {
@@ -360,7 +376,21 @@ function covarianceSetup(covarianceM) {
         activeButtonQueueCovariance[1] = parameterTitles.findIndex(title => title == selected.srcElement.id);
     
         var covariance = covarianceM[activeButtonQueueCovariance[0]][activeButtonQueueCovariance[1]];
-    
+        partialCovarianceMatrix[activeButtonQueueCovariance[0]][activeButtonQueueCovariance[1]] = Math.round(covariance*100)/100;
+
+        var covarianceTableHtml = "<table class='matrix'><tbody>";
+        for (var i = 0; i < covarianceM.length; i++) {
+            covarianceTableHtml += "<tr>";
+            for (var j = 0; j < covarianceM[i].length; j++) {
+                covarianceTableHtml += "<td>" + partialCovarianceMatrix[i][j] + "</td>";
+            }
+            covarianceTableHtml += "</tr>";
+        }
+        covarianceTableHtml += "</tbody></table>";
+
+        document.getElementById('covariance_matrix').innerHTML = covarianceTableHtml;
+
+
         document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
                                                             "As Covariance can only be calculated between two variables, we compute a Covariance matrix " +
                                                             "to represent the covariances between all the permutations of two random variables. We can do so for the " +
@@ -375,6 +405,7 @@ function covarianceSetup(covarianceM) {
                                                                 "Cov(X, Y) = " + covariance + "\n\n";
     
     });
+
 }
 
 function dotProduct(xs, ys) {
@@ -571,6 +602,7 @@ function eigenvectorsSetup(normalisedData, eigs) {
             document.getElementById('aController').onchange = () => {
                 pcs = parseFloat(document.getElementById('aController').value); 
                 document.getElementById('aControllerDisplay').innerText = pcs; 
+                console.log(pcs);
                 plotPrincipleComponentGraph();
             };
 
@@ -584,43 +616,30 @@ function eigenvectorsSetup(normalisedData, eigs) {
 }
 
 
-function varianceDemo() {
-    document.getElementsByClassName('variance_maths')[0].style.display = "block";
-    document.getElementById('information').innerHTML = "<br><br><label class=\"sliderTitle\">Standard Deviation:&nbsp;<span id=\"aControllerDisplay\" data-unit=\"\">5</span> </label><label class=\"slider\"><input id=\"aController\" class=\"inputs\" type=\"range\" value=\"5\" min=\"0\" max=\"10\" step=\"1\"/></label>"; 
-    document.getElementById('aController').onchange = () => {
-        var stdDev = parseFloat(document.getElementById('aController').value); 
-        plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, stdDev); 
-        document.getElementById('aControllerDisplay').innerText = stdDev;
-    };
-    
+function plotNormalGraph(xs, mean, stdDev) {
+    var xs = numeric.linspace(-35,35,6000);
+    var ys = [];
     const normalY = (x, mean, stdDev) => Math.exp((-0.5) * Math.pow((x - mean) / stdDev, 2));
-    const plotNormalGraph = (xs, mean, stdDev) => {
-        var xs = numeric.linspace(-35,35,10000);
-        var ys = [];
 
-        xs.forEach(x => {
-            ys.push(normalY(x, mean, stdDev));
-        });
+    xs.forEach(x => {
+        ys.push(normalY(x, mean, stdDev));
+    });
 
-        var data = [
-            {
-                x : xs, y : ys,
-                mode: 'markers',
-                type: 'scatter',
-                marker: {
-                    size: 3
-                }
+    var data = [
+        {
+            x : xs, y : ys,
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+                size: 3
             }
-        ];
-    
-        Plotly.newPlot('graph2', data);
-    };
+        }
+    ];
 
-    document.getElementById('information').innerHTML += "<body>If you're familiar with the normal distrubution you'll recognise this! We do in fact normalise our dataset to improve the computational efficiency in doing Principle Component Analysis.</body>";
-    plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, parseFloat(document.getElementById('aController').value));
+    Plotly.newPlot('graph2', data);
 }
 
-function resultSetup() {
+function covarianceTableHtmlSetup() {
     var compressed = adData.formattedAdjustedData;
     var uncompressed = PCA.computeOriginalData(compressed, adData.selectedVectors, adData.avgData).formattedOriginalData;
 
@@ -662,20 +681,7 @@ function resultSetup() {
 
 function switchTab(tabName) {
 
-    document.getElementById('graph1').innerHTML = "";
-    document.getElementById('graph2').innerHTML = "";
-    document.getElementById('params').innerHTML = "";
-    document.getElementById('information').innerHTML = "";
-    extraTextp1 = false;
-    extraTextp3 = false;
-    document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
-    document.getElementsByClassName('variance_maths')[0].style.display = "none";
-    document.getElementsByClassName('transformation3')[0].style.display = "none";
-    document.getElementsByClassName('transformation2')[0].style.display = "none";
-    document.getElementById('transformationmaths').style.display = 'none';
-    document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
-    document.getElementById('explainedvariancemaths').style.display = "none";
-    document.getElementById('covariancematrix').style.display = "none";
+    clearMess()
 
     switch(tabName) {
         case 'Dataset':
@@ -687,11 +693,27 @@ function switchTab(tabName) {
         case 'Eigenvectors':
             eigenvectorsSetup(normalisedData, eigs);    
             break;
-        case 'Result':
-            resultSetup();
+        case 'covarianceTableHtml':
+            covarianceTableHtmlSetup();
             break;
     }
 
+}
+
+function clearMess() {
+    document.getElementById('graph1').innerHTML = "";
+    document.getElementById('graph2').innerHTML = "";
+    document.getElementById('params').innerHTML = "";
+    document.getElementById('information').innerHTML = "";
+    extraTextp1 = false;
+    extraTextp3 = false;
+    document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
+    document.getElementsByClassName('transformation3')[0].style.display = "none";
+    document.getElementsByClassName('transformation2')[0].style.display = "none";
+    document.getElementById('transformationmaths').style.display = 'none';
+    document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
+    document.getElementById('explainedvariancemaths').style.display = "none";
+    document.getElementById('covariancematrix').style.display = "none";
 }
   
 $(document).ready(pcaIntro); 

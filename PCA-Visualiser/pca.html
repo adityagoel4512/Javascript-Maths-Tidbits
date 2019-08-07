@@ -13,7 +13,7 @@
     <script src=script/numeric/src/numeric.js></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.15.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pca-js@1.0.0/pca.min.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML'> async </script>
     <script src="./script/jquery-csv.js"></script>
     <script src="https://cdnjs.com/libraries/mathjs"></script>
 
@@ -27,8 +27,12 @@
                 document.getElementById(toggleDiv).style.display = 'block';
             } else {
                 document.getElementById(toggleDiv).style.display = 'none';
+                if (toggleDiv == 'covariancematrix') {
+                    document.getElementById("graph2").innerHTML = "";
+                }
             }
         }
+        
 
     </script>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -65,60 +69,83 @@
                 <div id='padding' style="widows: 400%; height:20px;"></div>
                 <h1>Principal Component Analysis</h1>
                 <div class='covariance_matrix' style="widows: 600%px; height:550%px; display:none">
-                    <body> \(cov (A, B) = E[(A-E[A])] - E[(B-E[B])]\)<br /><br />
-                            The  Covariance  Matrix for random variables W, X, Y, Z:
-                            $$
-                                \begin{bmatrix}
-                                cov (W, W) & cov (W, X) & cov (W, Y) & cov (W, Z) \\
-                                cov (X, W) & cov (X, X) & cov (X, Y) & cov (X, Z) \\
-                                cov (Y, W) & cov (Y, X) & cov (Y, Y) & cov (Y, Z) \\
-                                cov (Z, W) & cov (Z, X) & cov (Z, Y) & cov (Z, Z) \\
-                                \end{bmatrix}
-                            $$  
-                            <br />
-                            Going back to our example data, the random variables are \(sepal width, sepal length, petal width, petal length\). You can compute all the covariances pairwise to the right. The covariance matrix is then populated as shown above.
-                            <br /><br />
-                            <button class="covariance_matrix" onclick="toggleVisibility('covariancematrix');">More on spread of data</button>
+                    <body> 
+                        <br />
+                        The  Covariance  Matrix for 4 random variables sepal width, sepal length, petal width, petal length in the normalised Fischer-Iris dataset needs to be computed next, in order to infer 
+                        how related some of the variables are.
+                        <br />
+                        <div id = "covariance_matrix">
+                        </div> 
+                        <br />
+                        You can compute all the covariances pairwise to the right. The covariance matrix is then populated above.
+                        <br /><br />
+                        <button class="covariance_matrix" onclick="toggleVisibility('covariancematrix');">More on spread of data</button>
                     </body>       
                  </div>
 
                  <div id='covariancematrix' style="widows: 600%px; height:550%px; display:none">
                     
                         <body>
-                            We can quantify how 'spread' data is by looking at a dataset's standard deviation or variance. If we think about how spread a dataset is, 
-                            it makes sense to look at the mean and see how much all of the datapoints deviate from this. This is what the The Fisher's Iris Dataset we've been investigating 
-                            is a sample from a population obviously.
+                            We can quantify how 'spread' data is. If we think about how spread a dataset is, it makes sense to look at the mean and see 
+                            how much all of the datapoints deviate from this. This forms the basis of how we compute the standard deviation σ and variance σ<sup>2</sup> 
+                            of a dataset with a single independent variable.
+
+                            $$\sigma = \sqrt {\frac{\sum_{i=0}^n (X_i - \bar X)^2}{n}}$$
+
+                            We alter this by dividing by n - 1 when dealing with sampled data in order to construct an unbiased estimator of the standard deviation.
+
+                            $$s = \sqrt {\frac{\sum_{i=0}^n (X_i - \bar X)^2}{n - 1}}$$
+
+                            The unbiased estimator for variance is s<sup>2</sup> and is relevant for the covariance part of the covariance matrix which we will construct.
+
+                            <br/><br/>
+                            Play around with the slider to see how a distrubution of data on the right changes as a result of changing the variance!
+                            <br/><br/>
+                            <label class="sliderTitle">Standard Deviation:&nbsp;<span id="stdDevControllerDisplay" data-unit="">5</span> </label><label class="slider"><input id="stdDevController" class="inputs" type="range" value="5" min="0" max="10" step="1" onchange=
+                            "
+                                var stdDev = parseFloat(document.getElementById('stdDevController').value); 
+                                plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, stdDev); 
+                                document.getElementById('stdDevControllerDisplay').innerText = stdDev;
+                            "/></label>
+                            
+
+                            Covariance is a measure of the joint variability of two random variables, and so is quite analogous to variance. The sign of the covariance 
+                            between two jointly distributed random variables describes the direction in which the linear relationship tends. i.e. if the covariance is positive, as one variable 
+                            increases, so too does the other. 
 
                             <br/><br/>
 
-                            If the kth principal component P<sub>k</sub> has an associated eigenvalue λ<sub>k</sub>, and we have n principal components, then the Explained Variance of P<sub>k</sub> is
-                            
-                            $$
-                                \frac{λ_k}{\sum_{i=0}^n λ_i}
+                            For two jointly distributed random variables X and Y, and where E[X] and E[Y] denote the 'expectation' of these variables, 
+                            the covariance is calculated as follows:
+
+                            $$cov (X, Y) = E[X-E[X]] - E[Y-E[Y]]$$
+
+                            We can do some expectation algebra to reduce it to a more easily computable form.
+
+                            $$E[X - E[X]] - E[Y - E[Y]]
+                            \\E[X - XE[Y] - XE[Y] + E[X]E[Y]] 
+                            \\E[XY] - E[X]E[Y] - E[X]E[Y] + E[X]E[Y]
+                            \\E[XY] - E[X]E[Y]
                             $$
 
-                            i.e. calculating PC1's explained variance as above is done as follows:
-                            
+                            So, when we compute the covariance matrix up above what we are really doing is computing this for each and every pair 
+                            of random variable and populating the matrix appropriately i.e. pental length and sepal width.
+
+                            We actually use some linear algebra to compute the covariance matrix K<sub>XY</sub> directly as follows:
+
                             $$
-                                \frac{2.91...}{2.91... + 0.147... + 0.921... + 0.021...} = 0.730...
+                            K_{XY} = cov(X, Y) = E[(X - \mu_X)(Y - \mu_Y)^T]
+                            \\\mu_X = E[X]
+                            \\\mu_Y = E[Y]
                             $$
+
+                            E[X] and E[Y] respectively contain the expected values of X and Y. 
+
+
                         </body>
                 </div>
                 
-                 <div class='variance_maths' style="widows: 600%px; height:550%px; display:none">
-                    <body>  <br /><br />To understand standard deviation, we need a data set. Statisticians are usually concerned with taking a sample of a population. To use election polls as an example, the
-                            population is all the people in the country, whereas a sample is a subset of the population that the statisticians measure. The great thing about statistics is that by only
-                            measuring (in this case by doing going out and measuring some flowers) a sample of the population, you can work out what is most likely to be the measurement if you used the entire population. 
-                            From here on out, we assume all data is sampled. It's worth reading up on sampling if you have the time.<br><br> One of the things we can compute from our dataset is mean, as follows: 
-                            $$\bar X = \frac{\sum_{i=0}^n X_i}{n}$$                    
-                            Another feature of the data we may wish to understand is the spread. Highly spread data, as you can see, has a high magnitude standard deviation and thus a large variance - this should be obvious below.
-                            $$sample \: standard \: deviation = \sigma = \sqrt {\frac{\sum_{i=0}^n (X_i - \bar X)^2}{n - 1}}$$                    
-                            $$sample \: variance = s^2$$                   
-                            <br/><br/>
-
-                             
-                    </body>       
-                 </div>
+                 
                 <div id='graph1' style="widows: 600%px; height:550%px"></div>
                 <div class='transformation3' style="widows: 600%px; height:550%px; display:none">
                     <body>
@@ -237,7 +264,7 @@
                     So if our normalised data is represented as matrix X, the plot we see above (when the number of principal components is 2) is the computed as follows: 
 
                     $$
-                        W_2 \cdot X
+                         X\cdot W_2
                     $$
 
                 </body>
@@ -285,7 +312,7 @@
 
     <!--THE BRAINS-->
     <script src=script/objects.js></script>
-    <script src=script/pca.js></script>
+    <script src=script/pca.js> </script>
 </body>
 
 </html>

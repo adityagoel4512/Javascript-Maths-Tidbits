@@ -190,13 +190,10 @@ function pcaIntro() {
     document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue';
     document.getElementById('covariancematrix').style.backgroundColor = 'lightblue';
     document.getElementById('covariancematrix').style.fontSize = '130%';
+
     document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
-    document.getElementsByClassName('covariance_matrix')[1].style.fontSize = '110%';
     document.getElementsByClassName('transformation3')[0].style.fontSize = '130%';
     document.getElementsByClassName('transformation2')[0].style.fontSize = '130%';
-    document.getElementsByClassName('transformation_maths')[0].style.fontSize = '110%';
-    document.getElementsByClassName('transformation_maths')[1].style.fontSize = '110%';
-    document.getElementsByClassName('explained_variance_maths')[0].style.fontSize = '140%';
 
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == versicolor));
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == virginica));
@@ -377,7 +374,6 @@ function setupButtons(fx) {
         buttons[i].innerHTML = parameterTitles[i];
         buttons[i].id = parameterTitles[i];
         buttons[i].onclick = (i) => { fx(i) };
-        buttons[i].style.fontSize = '110%'
         document.getElementById('params').appendChild(buttons[i]);
     }
 
@@ -753,6 +749,8 @@ function clearMess() {
     document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
     document.getElementById('explainedvariancemaths').style.display = "none";
     document.getElementById('covariancematrix').style.display = "none";
+    document.getElementById('reconstructionControls').style.display = "none";
+    document.getElementById('reconstructionmaths').style.display = "none";
 }
   
 $(document).ready(pcaIntro); 

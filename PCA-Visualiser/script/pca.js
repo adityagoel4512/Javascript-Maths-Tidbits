@@ -165,6 +165,11 @@ var normalisedData;
 var covarianceM;
 var eigs;
 var partialCovarianceMatrix = [];
+var importancepc = [];
+var transformationMatrix;
+var newdata;
+var meanVector;
+var stdDevVector;
         
 
 // TODO: 1) Add maths background everywhere 
@@ -179,9 +184,11 @@ function pcaIntro() {
     document.getElementById('graph2').style.fontSize = '130%';
     document.getElementById('transformationmaths').style.fontSize = '130%';
     document.getElementById('explainedvariancemaths').style.fontSize = '130%';
-    document.getElementById('transformationmaths').style.backgroundColor = 'lightblue'
-    document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue'
-    document.getElementById('covariancematrix').style.backgroundColor = 'lightblue'
+    document.getElementById('reconstructionmaths').style.fontSize = '130%';
+    document.getElementById('transformationmaths').style.backgroundColor = 'lightblue';
+    document.getElementById('reconstructionmaths').style.backgroundColor = 'lightblue';
+    document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue';
+    document.getElementById('covariancematrix').style.backgroundColor = 'lightblue';
     document.getElementById('covariancematrix').style.fontSize = '130%';
     document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
     document.getElementsByClassName('covariance_matrix')[1].style.fontSize = '110%';
@@ -191,17 +198,16 @@ function pcaIntro() {
     document.getElementsByClassName('transformation_maths')[1].style.fontSize = '110%';
     document.getElementsByClassName('explained_variance_maths')[0].style.fontSize = '140%';
 
-    // document.getElementsByClassName('tablink').forEach(tab => {
-    //     tab.style.fontSize = '110%'
-    // })
-
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == versicolor));
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == virginica));
 
     originalFlowerDataSet.forEach(vector => {
         vector.pop();
     });
-    normalisedData = normaliseData(originalFlowerDataSet);
+
+    var dataInfo = normaliseData(originalFlowerDataSet);
+    normalisedData = dataInfo[0]; meanVector = dataInfo[1]; stdDevVector = dataInfo[2];
+
     covarianceM = covarianceMatrix(normalisedData);
     eigs = numeric.eig(covarianceM);
     for (var i = 0; i < covarianceM.length; i++) {
@@ -211,7 +217,25 @@ function pcaIntro() {
         }
     }
 
-    switchTab('Covariance')
+    var order = numeric.linspace(0, eigs.E.x.length-1, eigs.E.x.length).sort((i, j) => {
+        return (eigs.lambda.x[j] - eigs.lambda.x[i]);
+    });
+
+    var eigenvectors = [];
+    for (var i = 0; i < eigs.E.x.length; ++i) {
+        eigenvectors.push(transposeMatrix(eigs.E.x)[order[i]]);
+    }
+
+    transformationMatrix = transposeMatrix(eigenvectors);
+    newdata = math.multiply(normalisedData, transformationMatrix);
+
+    var totalEigs = eigs.lambda.x.reduce((e1, e2) => e1 + e2, 0);
+    for(var i = 0; i < eigs.lambda.x.length; ++i) {
+        importancepc.push(Math.round(100 * eigs.lambda.x[order[i]]/totalEigs));
+    }
+
+
+    switchTab('Result');
 
 }
 
@@ -259,11 +283,11 @@ function datasetVisualisation() {
 
         document.getElementById('information').innerText = "\n\nHumans are generally very bad at interpreting data in more than three dimensions." + 
                                                             "We can attempt to visualise data by tabulating it in a spreadsheet or by Parallel Coordinate Plots as " +
-                                                            "done to the left for our sample data. \n\nSlide the slider up and down to look down different data points. " +
+                                                            "done to the left for our data, the Fischer-Iris Dataset which we will use throughout this suite. \n\nSlide the slider up and down to look down different data points. " +
                                                             "You can probably tell that it is really quite hard to discern any important features from the data like this! \n\n" +
                                                             "We will look at Principle Component Analysis " +
                                                             "as a way of successfully reducing the dimensionality of this data in a manner that most preserves the " +
-                                                            "meaning of, or the patterns within, it.\n\n Select two parameterTitles below to try and find " +
+                                                            "meaning of, or the patterns within, it.\n\n Select two parameter titles below to try and find " +
                                                             "some kind of conclusive relationship between all the variables. It's hard!\n\n";
         
         const graphWithParamsDataset = (selected) => {
@@ -340,7 +364,7 @@ function datasetVisualisation() {
 }
 
 // This is called when any of the parameter buttons are pressed
-// We discern which button is pressed from the id attribute set priorly
+// We discern which button is pressed from the id attribute
 
 function setupButtons(fx) {
     var buttons = [];                                                    
@@ -359,7 +383,7 @@ function setupButtons(fx) {
 
 }
 
-function covarianceSetup(covarianceM) {
+function covarianceSetup() {
 
     document.getElementsByClassName('covariance_matrix')[0].style.display = "block";
     document.getElementById('information').innerText = "\n\nCovariance is defined as the joint variability of two random variables.\n\n" +
@@ -436,7 +460,7 @@ function normaliseData(data) {
             transpose[i][j] = (transpose[i][j] - means[i]) / stdDevs[i];
         }
     }
-    return transposeMatrix(transpose);
+    return [transposeMatrix(transpose), means, stdDevs];
 }
 
 function covarianceMatrix(normalisedData) {
@@ -454,46 +478,27 @@ function scalarProduct(lambda, xs) {
     return xs.map(x => x * lambda);
 }
 
-function eigenvectorsSetup(normalisedData, eigs) {
+function eigenvectorsSetup() {
     document.getElementById('information').innerHTML = "<br><br><a href=\"/home/adi/Desktop/Physics-Visualizations/visuals_maths/Eigenvectors/index.html\">Click here for a quick primer about Eigenvectors.</a>" +
                                                        "<p1><br><br>Since the covariance matrix is square, we can calculate the eigenvectors and eigenvalues for this matrix. " +
                                                        "These are rather important, as they tell us useful information about our data as you will find out." + 
                                                        "<br><br>Choose the number of principle components with the slider - what do you notice about how the adjusted data behaves with respect to the Principle Component axes?<br><br>";
 
-    var order = numeric.linspace(0, eigs.E.x.length-1, eigs.E.x.length).sort((i, j) => {
-        return (eigs.lambda.x[j] - eigs.lambda.x[i]);
-    });
-
-    var eigenvectors = [];
-    for (var i = 0; i < eigs.E.x.length; ++i) {
-        eigenvectors.push(transposeMatrix(eigs.E.x)[order[i]]);
-    }
-
-    var transformationMatrix = transposeMatrix(eigenvectors);
-    var newdata = math.multiply(normalisedData, transformationMatrix);
-    
-    
-    var importancepc = [];
-    var totalEigs = eigs.lambda.x.reduce((e1, e2) => e1 + e2, 0);
-    for(var i = 0; i < eigs.lambda.x.length; ++i) {
-        importancepc.push(Math.round(100 * eigs.lambda.x[order[i]]/totalEigs));
-    }
-
     var data = [{
-    x: ['PC1', 'PC2', 'PC3', 'PC4'],
-    y: importancepc,
-    type: 'bar',
-    text: importancepc.map(String),
-    textposition: 'auto',
-    hoverinfo: 'none',
-    marker: {
-        color: 'rgb(158,202,225)',
-        opacity: 0.6,
-        line: {
-        color: 'rgb(8,48,107)',
-        width: 1.5
+        x: ['PC1', 'PC2', 'PC3', 'PC4'],
+        y: importancepc,
+        type: 'bar',
+        text: importancepc.map(String),
+        textposition: 'auto',
+        hoverinfo: 'none',
+        marker: {
+            color: 'rgb(158,202,225)',
+            opacity: 0.6,
+            line: {
+                color: 'rgb(8,48,107)',
+                width: 1.5
+            }
         }
-    }
     }];
 
     var layout = {
@@ -602,7 +607,6 @@ function eigenvectorsSetup(normalisedData, eigs) {
             document.getElementById('aController').onchange = () => {
                 pcs = parseFloat(document.getElementById('aController').value); 
                 document.getElementById('aControllerDisplay').innerText = pcs; 
-                console.log(pcs);
                 plotPrincipleComponentGraph();
             };
 
@@ -639,25 +643,61 @@ function plotNormalGraph(xs, mean, stdDev) {
     Plotly.newPlot('graph2', data);
 }
 
-function covarianceTableHtmlSetup() {
-    var compressed = adData.formattedAdjustedData;
-    var uncompressed = PCA.computeOriginalData(compressed, adData.selectedVectors, adData.avgData).formattedOriginalData;
-
-    document.getElementById('information').innerText = "\n\nWe have derived a new dataset, stripping away some of the dimensionality of the original dataset. So naturally, we must have lost a bit of information about our original dataset during this process right!. " +
-                                                       "It turns out we have, and if using PCA to transform for data compression this may be a slight concern. In the same way we used the feature vector (the augmented matrix consisting of the eigenvectors of the covariance matrix) " +
-                                                       "we can use the reduced feature vector we now have to then try to recompute the original data. Additionally working with non linear datasets presents other challenges. \n\n" +
-                                                       "By repeatedly pressing the button below we can present a random original and the compressed datapoint and you can see that we loose a tiny bit of information generally for each data point. With more complex datasets this can be alot more pronounced.\n\n" +
+function resultSetup() {
+    
+    document.getElementById('information').innerText = "\n\nPCA computes eigenvectors of the covariance matrix and sorts them by their eigenvalues (amount of explained variance). The normalised data can then be projected onto these principal axes to yield principal components. For the purposes of dimensionality reduction, one can keep only a subset of principal components and discard the rest. " +
+                                                       "If we seek to reconstruct our original data, what do you expect to find? \n\n" +
+                                                       "If you try and reconstruct random datapoints using some number of Principal Components by playing around with the button and slider on the left, you will see that the reconstructed data does not correspond perfectly to the original data - there are errors. " +
+                                                       "\n\nAdditionally, the fewer principal components used in order to compress the data, the worse the data reconstruction is - however this difference is not by alot - cast your mind back to the explained variance chart to think why this is. " +
+                                                       "This intuitively makes sense as we are retaining more of the information by using more principal components, but for a more complete mathematical understanding of what's going on click the button below: " +
                                                        "It turns out PCA in this form has many applications that extend beyond normal statistical analysis, especially in Computer Vision and Image Processing, where images are encoded as multidimensional matrices of pixel values.\n\n" +
                                                        "PCA can be used for lossy Image Compression using the dimensionality reduction and then feature recomputation we've discussed. It is known as the KL transform. \n\n" +
-                                                       "PCA can also be used in Computer Vision for things like finding patterns in images including things like facial recognition.\n\n";
+                                                       "PCA can also be used in Computer Vision for things like finding patterns in images including things like facial recognition.\n\n" + 
+                                                       "The greyscale image below is encoded as a 512 by 512 data matrix. If one performs PCA on it and tries to reconstruct the image using the first 50 Principal Components we generate the image on the right. We can see some data is not recovered.";
+                                            
+    document.getElementById('information').innerHTML += "<img src='/home/adi/Desktop/Javascript-Maths-Tidbits/PCA-Visualiser/lenaPCA.png' style='width:100%; height:40%' alt='Lena Compression Image'>";
+    document.getElementById('reconstructionControls').style.display = 'block';
+    var randomButton = document.getElementsByClassName("randomButton")[0];
 
-    var randomButton = document.createElement("button");
-    randomButton.innerHTML = "Compare random data points";
+    var pcSlider = document.getElementById('principalComponents');
+    var pcs = parseFloat(pcSlider.value);
 
-    var randPoint = 0;
+    var pcsNewData;
+    var pcsTransformationMatrix;
+    var recomputedData;
+
+    const recomputationOfData = () => {
+        pcsNewData = [];
+        pcsTransformationMatrix = [];
+        for (var i = 0; i < pcs; ++i) {
+            pcsNewData.push(transposeMatrix(newdata)[i]);
+            pcsTransformationMatrix.push(transformationMatrix[i]);
+        }
+
+        pcsNewData = transposeMatrix(pcsNewData);
+
+        recomputedData = math.multiply(pcsNewData, pcsTransformationMatrix);
+        recomputedData = transposeMatrix(recomputedData);
+
+        for (var i = 0; i < recomputedData.length; ++i) {
+            recomputedData[i] = recomputedData[i].map(x => (x * stdDevVector[i]) + meanVector[i]);
+        }
+
+        recomputedData = transposeMatrix(recomputedData);
+    };
+
+    recomputationOfData();
+
+    pcSlider.onchange = () => {
+        pcs = parseFloat(pcSlider.value);
+        document.getElementById('principalComponentsDisplay').innerText = pcs;
+        recomputationOfData();    
+    }
+
+
     randomButton.onclick = () => {
         
-        randPoint = Math.floor((Math.random() * originalFlowerDataSet.length));
+        var randPoint = Math.floor((Math.random() * originalFlowerDataSet.length));
 
         var data = [
             {
@@ -667,8 +707,8 @@ function covarianceTableHtmlSetup() {
                 type: 'bar'
             }, {
                 x: parameterTitles,
-                y: uncompressed[randPoint],
-                name: 'Compressed Data',
+                y: recomputedData[randPoint],
+                name: 'Reconstructed Data',
                 type: 'bar'
             }
         ];
@@ -676,7 +716,6 @@ function covarianceTableHtmlSetup() {
         Plotly.newPlot('graph1', data, {barmode: 'group'});
         
         };
-    document.getElementById('params').appendChild(randomButton);
 }
 
 function switchTab(tabName) {
@@ -688,13 +727,13 @@ function switchTab(tabName) {
             datasetVisualisation();
             break;
         case 'Covariance':
-            covarianceSetup(covarianceM);
+            covarianceSetup();
             break;
         case 'Eigenvectors':
-            eigenvectorsSetup(normalisedData, eigs);    
+            eigenvectorsSetup();    
             break;
-        case 'covarianceTableHtml':
-            covarianceTableHtmlSetup();
+        case 'Result':
+            resultSetup();
             break;
     }
 

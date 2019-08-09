@@ -18,7 +18,7 @@
     <script src="https://cdnjs.com/libraries/mathjs"></script>
 
     <script type="text/javascript">
-        divVisibilityMap = new Map([['transformationmaths', false], ['explainedvariancemaths', false], ['covariancematrix', false]]);
+        divVisibilityMap = new Map([['transformationmaths', false], ['explainedvariancemaths', false], ['covariancematrix', false], ['reconstructionmaths', false]]);
 
         function toggleVisibility(toggleDiv) {
             visible = !divVisibilityMap.get(toggleDiv);
@@ -147,6 +147,11 @@
                 
                  
                 <div id='graph1' style="widows: 600%px; height:550%px"></div>
+                <div id='reconstructionControls' style="widows: 600%px; height:250%px; display:none">
+                    <label class="sliderTitle">Number of Principle Components:&nbsp;<span id="principalComponentsDisplay" data-unit="">2</span> </label><label class="slider"><input id="principalComponents" class="inputs" type="range" value="2" min="1" max="3" step="1"/></label>
+                    <button class="randomButton">Reconstruct random data points</button>
+                    <button class="reconstruction_maths" onclick="toggleVisibility('reconstructionmaths');">See some of the maths behind the data reconstruction</button>
+                </div>
                 <div class='transformation3' style="widows: 600%px; height:550%px; display:none">
                     <body>
                             $$
@@ -269,8 +274,40 @@
 
                 </body>
             </div>
-            <br /><br />
 
+            <div id='reconstructionmaths' style="widows: 600%px; height:550%px; display:none">
+                <body>
+                    What we've done so far is developed a transformation matrix V<sub>k</sub> by sorting the first k number of eigenvalues associated to the eigenvecors from the eigendecomposition of 
+                    the covariance matrix, and use this to project the normalised 4 dimensional Fischer-Iris dataset represented by X on k number of principal components.
+                    <br/><br/>
+                    i.e. we did the following                   
+                    $$
+                    PC = V_k \cdot X
+                    $$
+
+                    NNow if we have PC and look to recompute X, we obviously do 
+
+                    $$
+                    X = V_k^{-1} \cdot PC
+                    $$
+
+                    But as V, being a eigenvectors, is orthonormal (orthogonal because they are eigenvectors and normalised because we priorly normalised them), this is equivalent to
+
+                    $$
+                    X = V_k^T \cdot PC
+                    $$
+
+                    However we aren't done yet. As we had normalised the data earlier we need to denormalise it now so it's comparable to our original data. If σ is the standard deviation vector
+                    containing the standard deviations of every attribute of each datapoint, and μ likewise for the mean, the final reconstructed data will be computed as follows:
+                    $$
+                    V_k^T \cdot PC \cdot \sigma + \mu = X \cdot \sigma + \mu
+                    $$
+                    Remember when we picked the first k eigenvectors in constructing our transformation matrix - it's this which determines how much data we lose upon reconstruction!
+
+                </body>
+            </div>
+
+            <br /><br />
             </div>
 
             <!--Bottons/Sliders-->

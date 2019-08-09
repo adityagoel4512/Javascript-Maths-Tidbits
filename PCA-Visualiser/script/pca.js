@@ -172,28 +172,12 @@ var meanVector;
 var stdDevVector;
         
 
-// TODO: 1) Add maths background everywhere 
-// TODO: 2) Add variance scroll control
-// TODO: 3) HubQueue
 // TODO: 4) iFrame
 
 function pcaIntro() {
     Plotly.purge("graph1");
-    document.getElementById('information').style.fontSize = '130%';
-    document.getElementById('graph1').style.fontSize = '130%';
-    document.getElementById('graph2').style.fontSize = '130%';
-    document.getElementById('transformationmaths').style.fontSize = '130%';
-    document.getElementById('explainedvariancemaths').style.fontSize = '130%';
-    document.getElementById('reconstructionmaths').style.fontSize = '130%';
-    document.getElementById('transformationmaths').style.backgroundColor = 'lightblue';
-    document.getElementById('reconstructionmaths').style.backgroundColor = 'lightblue';
-    document.getElementById('explainedvariancemaths').style.backgroundColor = 'lightblue';
-    document.getElementById('covariancematrix').style.backgroundColor = 'lightblue';
-    document.getElementById('covariancematrix').style.fontSize = '130%';
 
-    document.getElementsByClassName('covariance_matrix')[0].style.fontSize = '130%';
-    document.getElementsByClassName('transformation3')[0].style.fontSize = '130%';
-    document.getElementsByClassName('transformation2')[0].style.fontSize = '130%';
+    adjustSizing();
 
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == versicolor));
     flowerTypeSplit.push(originalFlowerDataSet.findIndex(vector => vector[vector.length-1] == virginica));
@@ -360,24 +344,6 @@ function datasetVisualisation() {
         setupButtons(graphWithParamsDataset);
 }
 
-// This is called when any of the parameter buttons are pressed
-// We discern which button is pressed from the id attribute
-
-function setupButtons(fx) {
-    var buttons = [];                                                    
-
-    for (var i = 0; i < parameterTitles.length; ++i) {
-        buttons.push(document.createElement("button"));
-    }
-
-    for (var i = 0; i < buttons.length; ++i) {
-        buttons[i].innerHTML = parameterTitles[i];
-        buttons[i].id = parameterTitles[i];
-        buttons[i].onclick = (i) => { fx(i) };
-        document.getElementById('params').appendChild(buttons[i]);
-    }
-
-}
 
 function covarianceSetup() {
 
@@ -426,52 +392,6 @@ function covarianceSetup() {
     
     });
 
-}
-
-function dotProduct(xs, ys) {
-    console.assert(xs.length == ys.length);
-    return  numeric.linspace(0, xs.length-1, xs.length)
-           .map(i => xs[i] * ys[i])
-           .reduce((x, y) => x + y, 0);
-}
-
-function transposeMatrix(xs) {
-    var transpose = [];
-    xs[0].forEach(() => transpose.push([]));
-    for (var i = 0; i < xs.length; ++i) {
-        for (var j = 0; j < xs[i].length; ++j) {
-            transpose[j].push(xs[i][j]);
-        }
-    }
-    return transpose;
-}
-
-function normaliseData(data) {
-    var means = []; var stdDevs = [];
-    var transpose = transposeMatrix(data);
-    for (var i = 0; i < transpose.length; ++i) {
-        means[i] = transpose[i].reduce((x,y) => x+y, 0) / transpose[i].length;
-        stdDevs[i] = Math.sqrt(transpose[i].map(x => (x - means[i]) ** 2).reduce((x,y) => x+y, 0) / (transpose[i].length - 1));
-        for (var j = 0; j < transpose[i].length; ++j) {
-            transpose[i][j] = (transpose[i][j] - means[i]) / stdDevs[i];
-        }
-    }
-    return [transposeMatrix(transpose), means, stdDevs];
-}
-
-function covarianceMatrix(normalisedData) {
-    var matrix = [[], [], [], []];
-    var transpose = transposeMatrix(normalisedData);
-    for (var i = 0; i < transpose.length; ++i) {
-        for (var j = 0; j < transpose.length; ++j) {
-            matrix[i].push(dotProduct(transpose[i], transpose[j]) / (transpose[i].length - 1));
-        }
-    }
-    return matrix;
-}
-
-function scalarProduct(lambda, xs) {
-    return xs.map(x => x * lambda);
 }
 
 function eigenvectorsSetup() {
@@ -615,30 +535,6 @@ function eigenvectorsSetup() {
 
 }
 
-
-function plotNormalGraph(xs, mean, stdDev) {
-    var xs = numeric.linspace(-35,35,6000);
-    var ys = [];
-    const normalY = (x, mean, stdDev) => Math.exp((-0.5) * Math.pow((x - mean) / stdDev, 2));
-
-    xs.forEach(x => {
-        ys.push(normalY(x, mean, stdDev));
-    });
-
-    var data = [
-        {
-            x : xs, y : ys,
-            mode: 'markers',
-            type: 'scatter',
-            marker: {
-                size: 3
-            }
-        }
-    ];
-
-    Plotly.newPlot('graph2', data);
-}
-
 function resultSetup() {
     
     document.getElementById('information').innerText = "\n\nPCA computes eigenvectors of the covariance matrix and sorts them by their eigenvalues (amount of explained variance). The normalised data can then be projected onto these principal axes to yield principal components. For the purposes of dimensionality reduction, one can keep only a subset of principal components and discard the rest. " +
@@ -649,7 +545,7 @@ function resultSetup() {
                                                        "It turns out PCA in this form has many applications that extend beyond normal statistical analysis, especially in Computer Vision and Image Processing, where images are encoded as multidimensional matrices of pixel values.\n\n" +
                                                        "PCA can be used for lossy Image Compression using the dimensionality reduction and then feature recomputation we've discussed. It is known as the KL transform. \n\n" +
                                                        "PCA can also be used in Computer Vision for things like finding patterns in images including things like facial recognition.\n\n" + 
-                                                       "The greyscale image below is encoded as a 512 by 512 data matrix. If one performs PCA on it and tries to reconstruct the image using the first 50 Principal Components we generate the image on the right. We can see some data is not recovered.";
+                                                       "The greyscale image below is encoded as a 512 by 512 data matrix. If one performs PCA on it and tries to reconstruct the image using the first 50 Principal Components we generate the image on the right. We can see some data is not recovered in the reconstructed photo's quality.";
                                             
     document.getElementById('information').innerHTML += "<img src='/home/adi/Desktop/Javascript-Maths-Tidbits/PCA-Visualiser/lenaPCA.png' style='width:100%; height:40%' alt='Lena Compression Image'>";
     document.getElementById('reconstructionControls').style.display = 'block';
@@ -716,7 +612,7 @@ function resultSetup() {
 
 function switchTab(tabName) {
 
-    clearMess()
+    clearTemporaryDivisions()
 
     switch(tabName) {
         case 'Dataset':
@@ -735,22 +631,6 @@ function switchTab(tabName) {
 
 }
 
-function clearMess() {
-    document.getElementById('graph1').innerHTML = "";
-    document.getElementById('graph2').innerHTML = "";
-    document.getElementById('params').innerHTML = "";
-    document.getElementById('information').innerHTML = "";
-    extraTextp1 = false;
-    extraTextp3 = false;
-    document.getElementsByClassName('covariance_matrix')[0].style.display = "none";
-    document.getElementsByClassName('transformation3')[0].style.display = "none";
-    document.getElementsByClassName('transformation2')[0].style.display = "none";
-    document.getElementById('transformationmaths').style.display = 'none';
-    document.getElementsByClassName('explained_variance_maths')[0].style.display = "none";
-    document.getElementById('explainedvariancemaths').style.display = "none";
-    document.getElementById('covariancematrix').style.display = "none";
-    document.getElementById('reconstructionControls').style.display = "none";
-    document.getElementById('reconstructionmaths').style.display = "none";
-}
+
   
 $(document).ready(pcaIntro); 

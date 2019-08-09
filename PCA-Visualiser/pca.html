@@ -68,18 +68,20 @@
             <div class="six columns">
                 <div id='padding' style="widows: 400%; height:20px;"></div>
                 <h1>Principal Component Analysis</h1>
-                <div class='covariance_matrix' style="widows: 600%px; height:550%px; display:none">
+                <div class='covariance_matrix' style="widows: 600%px; height:550%px; display:none;">
                     <body> 
                         <br />
                         The  Covariance  Matrix for 4 random variables sepal width, sepal length, petal width, petal length in the normalised Fischer-Iris dataset needs to be computed next, in order to infer 
                         how related some of the variables are.
-                        <br />
+                        <br /><br/>
                         <div id = "covariance_matrix">
                         </div> 
                         <br />
                         You can compute all the covariances pairwise to the right. The covariance matrix is then populated above.
                         <br /><br />
-                        <button class="covariance_matrix" onclick="toggleVisibility('covariancematrix');">More on spread of data</button>
+                        <div style="text-align: center">
+                            <button class="covariance_matrix" onclick="toggleVisibility('covariancematrix');">More on spread of data</button>
+                        </div>
                     </body>       
                  </div>
 
@@ -101,13 +103,15 @@
                             <br/><br/>
                             Play around with the slider to see how a distrubution of data on the right changes as a result of changing the variance!
                             <br/><br/>
-                            <label class="sliderTitle">Standard Deviation:&nbsp;<span id="stdDevControllerDisplay" data-unit="">5</span> </label><label class="slider"><input id="stdDevController" class="inputs" type="range" value="5" min="0" max="10" step="1" onchange=
-                            "
-                                var stdDev = parseFloat(document.getElementById('stdDevController').value); 
-                                plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, stdDev); 
-                                document.getElementById('stdDevControllerDisplay').innerText = stdDev;
-                            "/></label>
-                            
+                            <div style="text-align: center">
+                                    
+                                <label class="sliderTitle">Standard Deviation:&nbsp;<span id="stdDevControllerDisplay" data-unit="">5</span> </label><label class="slider"><input id="stdDevController" class="inputs" type="range" value="5" min="0" max="10" step="1" onchange=
+                                "
+                                    var stdDev = parseFloat(document.getElementById('stdDevController').value); 
+                                    plotNormalGraph(numeric.linspace(-50, 50, 5000), 0, stdDev); 
+                                    document.getElementById('stdDevControllerDisplay').innerText = stdDev;
+                                "/></label>
+                            </div>
 
                             Covariance is a measure of the joint variability of two random variables, and so is quite analogous to variance. The sign of the covariance 
                             between two jointly distributed random variables describes the direction in which the linear relationship tends. i.e. if the covariance is positive, as one variable 
@@ -149,8 +153,10 @@
                 <div id='graph1' style="widows: 600%px; height:550%px"></div>
                 <div id='reconstructionControls' style="widows: 600%px; height:250%px; display:none">
                     <label class="sliderTitle">Number of Principle Components:&nbsp;<span id="principalComponentsDisplay" data-unit="">2</span> </label><label class="slider"><input id="principalComponents" class="inputs" type="range" value="2" min="1" max="3" step="1"/></label>
+                    <div style="text-align: center">
                     <button class="randomButton">Reconstruct random data points</button>
                     <button class="reconstruction_maths" onclick="toggleVisibility('reconstructionmaths');">See some of the maths behind the data reconstruction</button>
+                    </div>
                 </div>
                 <div class='transformation3' style="widows: 600%px; height:550%px; display:none">
                     <body>
@@ -176,7 +182,9 @@
                             $$
                     </body>
                     <br />
-                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
+                    <div style="text-align: center">
+                        <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
+                    </div>
                 </div>
                 <div class='transformation2' style="widows: 600%px; height:550%px; display:none">
                     <body>
@@ -202,7 +210,9 @@
                             $$
                     </body>
                     <br /> 
-                    <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
+                    <div style="text-align: center">
+                        <button class="transformation_maths" onclick="toggleVisibility('transformationmaths');">See some of the maths behind the transformation</button>
+                    </div>
                 </div>
             <div id='transformationmaths' style="widows: 600%px; height:550%px; display:none">
                 <body>
@@ -285,7 +295,7 @@
                     PC = V_k \cdot X
                     $$
 
-                    NNow if we have PC and look to recompute X, we obviously do 
+                    Now if we have PC and look to recompute X, we obviously do 
 
                     $$
                     X = V_k^{-1} \cdot PC
@@ -322,7 +332,9 @@
                     <div id='information' style="widows: 600%; height:320%px;"></div>
                     <div id='params' style="widows: 600%; height:100%px;"></div>
                     <div id='graph2' style="widows: 600%;; height:550%px;"></div>
-                    <button class="explained_variance_maths" style="display:none;" onclick="toggleVisibility('explainedvariancemaths')">See some of the maths behind the 'Explained Variance'</button>
+                    <div style="text-align: center">
+                        <button class="explained_variance_maths" style="display:none;" onclick="toggleVisibility('explainedvariancemaths')">See some of the maths behind the 'Explained Variance'</button>
+                    </div>
                     <div id='explainedvariancemaths' style="widows: 600%px; height:550%px; display:none">
                             <body>
                                 Explained variance is a term we use to describe the proportion of the total variation in the data accounted for by a principal component.
@@ -348,8 +360,11 @@
     </div>
 
     <!--THE BRAINS-->
-    <script src=script/objects.js></script>
     <script src=script/pca.js> </script>
+    <script src=script/maths-utilities.js> </script>
+    <script src=script/general-utilities.js> </script>
+
+
 </body>
 
 </html>

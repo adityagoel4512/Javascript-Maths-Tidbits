@@ -1,23 +1,23 @@
-Principal Component Analysis Visualisation Suite__
-Author: Aditya Goel__
-Email: aditya.goel18@imperial.ac.uk__
+Principal Component Analysis Visualisation Suite  
+Author: Aditya Goel  
+Email: aditya.goel18@imperial.ac.uk  
 
 The project directory is organised as follows:  
 
-├── Fisher_iris.csv__
-├── lenaPCA.png__
-├── pca.html__
-├── readme.md__
-├── script__
-│   ├── fisher-iris-dataset.js__
-│   ├── general-utilities.js__
-│   ├── jquery-csv.js__
-│   ├── maths-utilities.js__
-│   ├── numeric__
-│   └── pca.js__
+├── Fisher_iris.csv  
+├── lenaPCA.png  
+├── pca.html  
+├── readme.md  
+├── script  
+│   ├── fisher-iris-dataset.js  
+│   ├── general-utilities.js  
+│   ├── jquery-csv.js  
+│   ├── maths-utilities.js  
+│   ├── numeric  
+│   └── pca.js  
 └── style
-    ├── skeleton.css__
-    └── style.css__
+    ├── skeleton.css  
+    └── style.css  
  
 The Fischer_iris.csv data file is provided for reference, and is not necessary for the running of the suite.  
 

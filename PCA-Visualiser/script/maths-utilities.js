@@ -1,3 +1,12 @@
+var normalisedData;
+var covarianceM;
+var eigs;
+var partialCovarianceMatrix = [];
+var importancePC = [];
+var transformationMatrix;
+var newdata;
+var meanVector;
+var stdDevVector;
 
 function dotProduct(xs, ys) {
     console.assert(xs.length == ys.length);

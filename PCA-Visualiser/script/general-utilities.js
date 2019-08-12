@@ -1,3 +1,11 @@
+var activeButtonQueueDataset = [];
+var activeButtonQueueCovariance = [];
+var parameterTitles = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'];
+var shortenedParameterTitles = ['SL', 'SW', 'PL', 'PW'];
+var extraTextp1 = false;
+var extraTextp3 = false;
+var flowerTypeSplit = [];
+
 // This is called when any of the parameter buttons are pressed
 // We discern which button is pressed from the id attribute
 

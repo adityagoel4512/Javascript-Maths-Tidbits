@@ -434,10 +434,10 @@ function resultSetup() {
                 type: 'bar'
             }
         ];
-
-        Plotly.newPlot('graph1', data, {barmode: 'group'});
-        
-        };
+        console.log(randPoint);
+        document.getElementById('graph1').innerHTML += "wuibefiudasfaf";
+        Plotly.newPlot('graph1', data, {barmode: 'group'});    
+    };
 }
 
 function switchTab(tabName) {

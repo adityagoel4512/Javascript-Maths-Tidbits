@@ -43,7 +43,7 @@ function pcaIntro() {
     }
 
 
-    switchTab('Result');
+    switchTab('Dataset');
 
 }
 

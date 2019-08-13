@@ -41,6 +41,7 @@ function clearTemporaryDivisions() {
     document.getElementById('covariancematrix').style.display = "none";
     document.getElementById('reconstructionControls').style.display = "none";
     document.getElementById('reconstructionmaths').style.display = "none";
+    document.getElementById
 }
 
 function adjustSizing() {

@@ -20,7 +20,7 @@ function setupButtons(fx) {
         buttons[i].innerHTML = parameterTitles[i];
         buttons[i].id = parameterTitles[i];
         buttons[i].onclick = (i) => { fx(i) };
-        document.getElementById('params').appendChild(buttons[i]);
+        document.getElementById('information').appendChild(buttons[i]);
     }
 
 }
@@ -41,6 +41,7 @@ function clearTemporaryDivisions() {
     document.getElementById('covariancematrix').style.display = "none";
     document.getElementById('reconstructionControls').style.display = "none";
     document.getElementById('reconstructionmaths').style.display = "none";
+    document.getElementById
 }
 
 function adjustSizing() {

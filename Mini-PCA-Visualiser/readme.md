@@ -1,5 +1,5 @@
 Principal Component Analysis Visualisation Mini Suite
-================================================
+=====================================================
   
 Author: Aditya Goel  
 Email: aditya.goel18@imperial.ac.uk  

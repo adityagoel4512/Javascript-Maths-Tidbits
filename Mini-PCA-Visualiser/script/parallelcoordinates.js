@@ -44,15 +44,9 @@ function pcaIntro() {
 
 
 function datasetVisualisation() {
-    var xs = []; ys = []; zs = []; ts = [];
-    originalFlowerDataSet.forEach(vector => {
-        xs.push(vector[0]);
-        ys.push(vector[1]);
-        zs.push(vector[2]);
-        ts.push(vector[3]);
-    });
-
-         
+    
+    transposeData = transposeMatrix(originalFlowerDataSet);
+    
     var data = [
         {
             type: 'parcoords',
@@ -65,25 +59,24 @@ function datasetVisualisation() {
                 range: [4,8],
                 constraintrange: [5, 5.5],
                 label: parameterTitles[0],
-                values: xs
+                values: transposeData[0]
             }, {
                 range: [2, 4.5],
                 label: parameterTitles[1],
-                values: ys
+                values: transposeData[1]
             }, {
                 label: parameterTitles[2],
                 range: [1, 7],
-                values: zs
+                values: transposeData[2]
             }, {
                 label: parameterTitles[3],
                 range: [0, 2.5],
-                values: ts
+                values: transposeData[3]
             }]
         }
     ];
-
-              
-        Plotly.newPlot('graph', data), {width: document.getElementById('graph').offsetWidth};
+          
+    Plotly.newPlot('graph', data), {width: document.getElementById('graph').offsetWidth};
 
 }
 

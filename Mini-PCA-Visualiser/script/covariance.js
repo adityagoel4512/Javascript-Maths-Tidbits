@@ -56,7 +56,7 @@ function covarianceSetup() {
         var covariance = covarianceM[activeButtonQueueCovariance[0]][activeButtonQueueCovariance[1]];
         partialCovarianceMatrix[activeButtonQueueCovariance[0]][activeButtonQueueCovariance[1]] = Math.round(covariance*100)/100;
 
-        var covarianceTableHtml = "<table class='matrix'><tbody>";
+        var covarianceTableHtml = "<table class='matrix' align='center'><tbody>";
         for (var i = 0; i < covarianceM.length; i++) {
             covarianceTableHtml += "<tr>";
             for (var j = 0; j < covarianceM[i].length; j++) {
@@ -79,4 +79,9 @@ function covarianceSetup() {
 
 }
 
-$(document).ready(pcaIntro);
+function main() {
+    initGuidance(['information', 'graph'])
+    pcaIntro();
+}
+
+$(document).ready(main);

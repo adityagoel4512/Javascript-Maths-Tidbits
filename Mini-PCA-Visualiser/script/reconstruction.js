@@ -102,4 +102,8 @@ function resultSetup() {
     };
 }
 
-$(document).ready(pcaIntro);
+function main() {
+    initGuidance(["pcslider"]);
+    pcaIntro();
+}
+$(document).ready(main);

@@ -39,7 +39,6 @@ function pcaIntro() {
 
 
     datasetVisualisation();
-
 }
 
 
@@ -80,5 +79,10 @@ function datasetVisualisation() {
 
 }
 
+function main() {
 
-$(document).ready(pcaIntro); 
+    initGuidance(["graph", "information"]);
+    pcaIntro();
+
+}
+$(document).ready(main); 

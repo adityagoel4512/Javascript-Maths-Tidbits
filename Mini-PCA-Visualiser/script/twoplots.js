@@ -116,4 +116,9 @@ function datasetVisualisation() {
     setupButtons(graphWithParamsDataset);
 }
 
-$(document).ready(pcaIntro);
+function main() {
+    initGuidance(['information'])
+    pcaIntro();
+}
+
+$(document).ready(main);

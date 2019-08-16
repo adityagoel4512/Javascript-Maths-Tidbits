@@ -68,4 +68,9 @@ function eigenvectorsSetup() {
     Plotly.newPlot('graph', data, layout);
 }
 
-$(document).ready(pcaIntro);
+function main() {
+    initGuidance(['graph'])
+    pcaIntro();
+}
+
+$(document).ready(main);

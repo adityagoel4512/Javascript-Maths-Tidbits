@@ -111,8 +111,8 @@ function eigenvectorsSetup() {
         ];
     
         var layout = {
-            width: document.getElementById('graph').offsetWidth,
-            height: document.getElementById('graph').offsetWidth,
+            width: document.getElementById('graph').offsetWidth-40,
+            height: document.getElementById('graph').offsetWidth-40,
             autosize: true
         };  
     
@@ -129,4 +129,9 @@ function eigenvectorsSetup() {
 
 }
 
-$(document).ready(pcaIntro);
+function main() {
+    initGuidance(['pcslider', 'graph'])
+    pcaIntro();
+}
+
+$(document).ready(main);
